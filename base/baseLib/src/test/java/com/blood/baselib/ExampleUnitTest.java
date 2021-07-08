@@ -1,4 +1,4 @@
-package com.blood.common;
+package com.blood.baselib;
 
 import org.junit.Test;
 

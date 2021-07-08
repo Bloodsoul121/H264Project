@@ -1,4 +1,4 @@
-package com.blood.common;
+package com.blood.baselib;
 
 import android.content.Context;
 
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.blood.common.test", appContext.getPackageName());
+        assertEquals("com.blood.baselib", appContext.getPackageName());
     }
 }
