@@ -1,6 +1,7 @@
 package com.blood.common.permission
 
-import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -17,24 +18,50 @@ class PermissionActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_permission)
-        requestPermissions()
+        checkPermissions()
     }
 
-    private fun requestPermissions() {
-        val rxPermissions = RxPermissions(this)
-        rxPermissions.requestEach(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.CAMERA
-        ).subscribe {
-            if (!it.granted) {
-                Log.i(TAG, "requestPermissions deny : ${it.name}")
-                if (it.shouldShowRequestPermissionRationale) {
-                    PermissionUtil.launchAppDetailsSettings(this)
+    private fun checkPermissions() {
+        try {
+            val packageInfo = packageManager.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS)
+            val requestedPermissions = packageInfo.requestedPermissions
+            val denyPermissions = mutableListOf<String>()
+            for (i in requestedPermissions.indices) {
+                val permission = requestedPermissions[i]
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (PackageManager.PERMISSION_GRANTED != checkSelfPermission(permission)) {
+                        denyPermissions.add(permission)
+                        Log.i(TAG, "checkPermissions: deny $permission")
+                    } else {
+                        Log.i(TAG, "checkPermissions: granted $permission")
+                    }
                 }
             }
+            if (denyPermissions.size > 0) {
+                requestPermissions(denyPermissions)
+            } else {
+                setResult(RESULT_OK)
+                finish()
+            }
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+            setResult(RESULT_CANCELED)
+            finish()
         }
+    }
+
+    private fun requestPermissions(permissions: List<String>) {
+        RxPermissions(this)
+                .request(*permissions.toTypedArray())
+                .subscribe {
+                    if (it) {
+                        setResult(RESULT_OK)
+                        finish()
+                    } else {
+                        setResult(RESULT_CANCELED)
+                        PermissionUtil.launchAppDetailsSettings(this)
+                    }
+                }
     }
 
 }
