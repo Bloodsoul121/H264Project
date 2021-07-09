@@ -1,5 +1,11 @@
 package com.blood.common.util;
 
+import android.graphics.ImageFormat;
+import android.graphics.Rect;
+import android.graphics.YuvImage;
+
+import java.io.ByteArrayOutputStream;
+
 public class YuvUtil {
 
     public static void yuvToNv21(byte[] y, byte[] u, byte[] v, byte[] nv21, int stride, int height) {
@@ -57,6 +63,13 @@ public class YuvUtil {
                 offset += width;
             }
         }
+    }
+
+    public static byte[] transformYuvBytes2ArgbBytes(byte[] bytes, int width, int height) {
+        YuvImage yuvImage = new YuvImage(bytes, ImageFormat.NV21, width, height, null);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        yuvImage.compressToJpeg(new Rect(0, 0, width, height), 100, baos);
+        return baos.toByteArray(); //rgb
     }
 
 }

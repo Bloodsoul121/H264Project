@@ -3,9 +3,10 @@ package com.blood.common.util;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.blood.common.util.CloseableUtil;
-
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -90,6 +91,35 @@ public class FileUtil {
             return;
         }
         file.delete();
+    }
+
+    public static byte[] getBytes(String file) {
+        if (TextUtils.isEmpty(file)) {
+            Log.e(TAG, "file is null");
+            return null;
+        }
+        return getBytes(new File(file));
+    }
+
+    public static byte[] getBytes(File file) {
+        if (file == null) {
+            Log.e(TAG, "File is null");
+            return null;
+        }
+        try {
+            DataInputStream dis = new DataInputStream(new FileInputStream(file));
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            int len;
+            byte[] arr = new byte[1024];
+            while ((len = dis.read(arr)) != -1) {
+                bos.write(arr, 0, len);
+            }
+            Log.d(TAG, "getBytes size : " + bos.size());
+            return bos.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }
