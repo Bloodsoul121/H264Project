@@ -1,0 +1,4 @@
+project.ext {
+    // 模块是否单独运行调试
+    isModuleDebug = true
+}

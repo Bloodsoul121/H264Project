@@ -1,3 +1,4 @@
+apply from: "${rootProject.rootDir}/moduleDebug.gradle"
 apply from: "${rootProject.rootDir}/config.gradle"
 
 android {
