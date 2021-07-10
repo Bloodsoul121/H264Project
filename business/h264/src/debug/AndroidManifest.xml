@@ -9,8 +9,9 @@
         android:roundIcon="@drawable/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.H264Project">
-        <activity android:name=".parse.H264ParseOutputActivity" />
-        <activity android:name=".parse.H264ParseActivity" />
+        <activity android:name=".parse.screen.ScreenActivity"></activity>
+        <activity android:name=".parse.output.H264ParseOutputActivity" />
+        <activity android:name=".parse.normal.H264ParseActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

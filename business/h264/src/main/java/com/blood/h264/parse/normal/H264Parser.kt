@@ -1,4 +1,4 @@
-package com.blood.h264.parse
+package com.blood.h264.parse.normal
 
 import android.media.MediaCodec
 import android.media.MediaFormat

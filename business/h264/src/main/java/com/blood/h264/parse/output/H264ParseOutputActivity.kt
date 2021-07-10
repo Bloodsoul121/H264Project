@@ -1,4 +1,4 @@
-package com.blood.h264.parse
+package com.blood.h264.parse.output
 
 import android.graphics.Bitmap
 import android.os.Bundle

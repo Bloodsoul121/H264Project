@@ -1,17 +1,36 @@
-package com.blood.common.util;
+package com.blood.common.util
 
-import android.media.MediaCodec;
+import android.hardware.display.VirtualDisplay
+import android.media.MediaCodec
+import android.media.projection.MediaProjection
 
-import java.nio.ByteBuffer;
+class MediaCodecUtil {
 
-public class MediaCodecUtil {
+    companion object {
 
-    public static byte[] getOutputBufferBytes(MediaCodec mediaCodec, int outputBufferIndex, int limitSize) {
-        ByteBuffer outputBuffer = mediaCodec.getOutputBuffer(outputBufferIndex);
-        outputBuffer.limit(limitSize);
-        byte[] byteArray = new byte[outputBuffer.remaining()];
-        outputBuffer.get(byteArray);
-        return byteArray;
+        fun getOutputBufferBytes(mediaCodec: MediaCodec, outputBufferIndex: Int, bufferInfo: MediaCodec.BufferInfo): ByteArray {
+            val outputBuffer = mediaCodec.getOutputBuffer(outputBufferIndex)
+            outputBuffer!!.position(bufferInfo.offset)
+            outputBuffer.limit(bufferInfo.size)
+            val byteArray = ByteArray(outputBuffer.remaining())
+            outputBuffer[byteArray]
+            outputBuffer.clear()
+            return byteArray
+        }
+
+        fun releaseMediaCodec(mediaCodec: MediaCodec?) {
+            mediaCodec?.stop()
+            mediaCodec?.release()
+        }
+
+        fun releaseMediaProjection(mediaProjection: MediaProjection?) {
+            mediaProjection?.stop()
+        }
+
+        fun releaseVirtualDisplay(virtualDisplay: VirtualDisplay?) {
+            virtualDisplay?.release()
+        }
+
     }
 
 }

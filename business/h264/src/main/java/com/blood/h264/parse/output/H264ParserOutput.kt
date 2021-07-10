@@ -1,12 +1,12 @@
-package com.blood.h264.parse
+package com.blood.h264.parse.output
 
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.media.MediaCodec
 import android.media.MediaFormat
 import android.os.SystemClock
 import android.util.Log
 import com.blood.common.util.*
-import java.io.File
 import java.io.IOException
 
 class H264ParserOutput(val context: Context, val filePath: String, val width: Int, val height: Int,val callback: H264ParseOutputActivity.Callback) {
@@ -91,12 +91,15 @@ class H264ParserOutput(val context: Context, val filePath: String, val width: In
             val outputBufferIndex = mediaCodec.dequeueOutputBuffer(bufferInfo, 10000)
             if (outputBufferIndex > -1) {
 
-                if (intervalCount % 5 == 0) {
-                    // 只能选择是渲染到屏幕，或者存储到本地图片，如果同时调用，mMediaCodec.stop()会报错！！！
+                intervalCount++
+                if (intervalCount % 10 == 0) {
+                    // 数据源只能做一种处理，不能多处使用，否则MediaCodec.stop()会报错！！！
+                    // 只能选择是渲染到屏幕，或者存储到本地图片，如果同时调用，MediaCodec.stop()会报错！！！
                     // 将一帧图片保存到本地
-                    val byteArray = MediaCodecUtil.getOutputBufferBytes(mediaCodec, outputBufferIndex, bufferInfo.size)
+                    val byteArray = MediaCodecUtil.getOutputBufferBytes(mediaCodec, outputBufferIndex, bufferInfo)
                     val argbBytes = YuvUtil.transformYuvBytes2ArgbBytes(byteArray, width, height)
-                    val bitmap = BitmapUtil.compress(argbBytes, File(context.filesDir, "H264ParserOutput.png"))
+//                    val bitmap = BitmapUtil.compress(argbBytes, File(context.filesDir, "H264ParserOutput.png"))
+                    val bitmap = BitmapFactory.decodeByteArray(argbBytes, 0, argbBytes.size)
                     callback.onBitmapCompressed(bitmap)
                 }
 
