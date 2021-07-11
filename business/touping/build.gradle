@@ -1,0 +1,41 @@
+apply from: "${rootProject.rootDir}/moduleDebug.gradle"
+apply from: "${rootProject.rootDir}/config.gradle"
+apply plugin: 'kotlin-android'
+
+android {
+
+    defaultConfig {
+        // Caused by: java.lang.SecurityException: Media projections require a foreground service of type ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
+        // targetSdkVersion 29 开始禁止直接访问录屏
+        targetSdkVersion 28
+    }
+
+    flavorDimensions "version"
+
+    productFlavors {
+        push {
+            dimension "version"
+        }
+        server {
+            dimension "version"
+        }
+    }
+
+    applicationVariants.all { variant ->
+        println("variant.name ==> ${variant.name}")
+        if (variant.name.startsWith("push")) {
+            buildConfigField 'String', 'type', '"push"'
+        } else if (variant.name.startsWith("server")) {
+            buildConfigField 'String', 'type', '"server"'
+        }
+    }
+
+}
+
+dependencies {
+    implementation "org.java-websocket:Java-WebSocket:1.5.1"
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.google.android.material:material:1.2.1'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+}

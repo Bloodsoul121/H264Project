@@ -2,5 +2,6 @@ rootProject.name = "H264Project"
 include ':core:common'
 //include ':app'
 //include ':base:baseLib'
-include ':business:h264'
-include ':business:camera1'
+//include ':business:h264'
+//include ':business:camera1'
+include ':business:touping'
