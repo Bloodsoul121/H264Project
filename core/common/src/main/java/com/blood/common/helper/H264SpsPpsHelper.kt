@@ -89,7 +89,7 @@ class H264SpsPpsHelper(startBit: Int = 32) {
     // 与真实屏幕可能不符，因为宽高必须是最大宏块的个数，即16的倍数
     fun getSize(): IntArray {
         val size = IntArray(2)
-        // 必须加一，编码规范有关
+        // 必须加一，编码规范有关，默认至少1个宏块
         size[0] = (pic_width_in_mbs_minus1 + 1) * 16
         size[1] = (pic_height_in_map_units_minus1 + 1) * 16
         return size

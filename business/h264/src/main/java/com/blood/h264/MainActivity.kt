@@ -5,6 +5,7 @@ import com.blood.common.adapter.BindingCallback
 import com.blood.common.adapter.MainBean
 import com.blood.common.base.BaseMainActivity
 import com.blood.h264.databinding.ActivityMainBinding
+import com.blood.h264.parse.h265.H265Activity
 import com.blood.h264.parse.normal.H264ParseActivity
 import com.blood.h264.parse.output.H264ParseOutputActivity
 import com.blood.h264.parse.screen.ScreenActivity
@@ -24,6 +25,7 @@ class MainActivity : BaseMainActivity<ActivityMainBinding>(), BindingCallback<Ma
         list.add(MainBean("H264ParseActivity", H264ParseActivity::class.java))
         list.add(MainBean("H264ParseOutputActivity", H264ParseOutputActivity::class.java))
         list.add(MainBean("ScreenActivity", ScreenActivity::class.java))
+        list.add(MainBean("H265Activity", H265Activity::class.java))
     }
 
 }

@@ -1,15 +1,16 @@
-package com.blood.h264.parse.output
+package com.blood.h264.parse.h265
 
-import android.content.Context
-import android.graphics.BitmapFactory
 import android.media.MediaCodec
 import android.media.MediaFormat
 import android.os.SystemClock
 import android.util.Log
-import com.blood.common.util.*
+import android.view.Surface
+import com.blood.common.util.FileUtil
+import com.blood.common.util.H264Util
+import com.blood.common.util.ThreadPoolUtil
 import java.io.IOException
 
-class H264ParserOutput(val context: Context, val filePath: String, val width: Int, val height: Int,val callback: H264ParseOutputActivity.Callback) {
+class H265Parser(val filePath: String, val surface: Surface, val width: Int, val height: Int) {
 
     companion object {
         const val TAG = "H264Parser"
@@ -21,10 +22,10 @@ class H264ParserOutput(val context: Context, val filePath: String, val width: In
     // 宽高暂时固定，这里是直接解析h264码流，正常情况下是可以通过哥伦布编码或者MediaExtractor解析出文件宽高
     init {
         try {
-            mediaCodec = MediaCodec.createDecoderByType(MediaFormat.MIMETYPE_VIDEO_AVC)
-            val mediaFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height)
+            mediaCodec = MediaCodec.createDecoderByType(MediaFormat.MIMETYPE_VIDEO_HEVC)
+            val mediaFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_HEVC, width, height)
             mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, 15)
-            mediaCodec.configure(mediaFormat, null, null, 0)
+            mediaCodec.configure(mediaFormat, surface, null, 0)
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -53,7 +54,6 @@ class H264ParserOutput(val context: Context, val filePath: String, val width: In
         val bytes = FileUtil.getBytes(filePath) ?: return
 
         var curFrameIndex = -1
-        var intervalCount = 0
 
         while (isRunning) {
 
@@ -90,20 +90,7 @@ class H264ParserOutput(val context: Context, val filePath: String, val width: In
             val bufferInfo = MediaCodec.BufferInfo()
             val outputBufferIndex = mediaCodec.dequeueOutputBuffer(bufferInfo, 10000)
             if (outputBufferIndex > -1) {
-
-                intervalCount++
-                if (intervalCount % 10 == 0) {
-                    // 数据源只能做一种处理，不能多处使用，否则MediaCodec.stop()会报错！！！
-                    // 只能选择是渲染到屏幕，或者存储到本地图片，如果同时调用，MediaCodec.stop()会报错！！！
-                    // 将一帧图片保存到本地
-                    val byteArray = MediaCodecUtil.getOutputBufferBytes(mediaCodec, outputBufferIndex, bufferInfo)
-                    val argbBytes = YuvUtil.transformNv21ToArgb(byteArray, width, height)
-//                    val bitmap = BitmapUtil.compress(argbBytes, File(context.filesDir, "H264ParserOutput.png"))
-                    val bitmap = BitmapFactory.decodeByteArray(argbBytes, 0, argbBytes.size)
-                    callback.onBitmapCompressed(bitmap)
-                }
-
-                mediaCodec.releaseOutputBuffer(outputBufferIndex, false)
+                mediaCodec.releaseOutputBuffer(outputBufferIndex, true)
             } else {
                 Log.w(TAG, "dequeueOutputBuffer failed")
             }

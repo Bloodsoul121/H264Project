@@ -22,19 +22,17 @@ public class BitmapUtil {
         compress(bytes, file);
     }
 
-    public static Bitmap compress(byte[] bytes, File outFile) {
-        if (bytes == null || outFile == null) return null;
+    public static void compress(byte[] bytes, File outFile) {
+        if (bytes == null || outFile == null) return;
         try {
             Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
             BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outFile));
             bmp.compress(Bitmap.CompressFormat.JPEG, 80, bos);
             bos.flush();
             bos.close();
-            return bmp;
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
     }
 
 }
