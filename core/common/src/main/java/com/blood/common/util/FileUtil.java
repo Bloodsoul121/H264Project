@@ -15,8 +15,6 @@ public class FileUtil {
 
     private static final String TAG = "FileUtil";
 
-
-
     //删除文件夹和文件夹里面的文件
     public static void deleteDir(final String pPath) {
         File dir = new File(pPath);

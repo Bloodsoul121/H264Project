@@ -1,5 +1,6 @@
 apply from: "${rootProject.rootDir}/moduleDebug.gradle"
 apply from: "${rootProject.rootDir}/config.gradle"
+apply plugin: 'kotlin-android'
 
 android {
 
@@ -15,4 +16,11 @@ android {
             version "3.10.2"
         }
     }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.google.android.material:material:1.2.1'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
 }
