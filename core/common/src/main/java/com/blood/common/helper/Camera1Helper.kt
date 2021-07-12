@@ -1,56 +1,51 @@
-package com.blood.camera1
+package com.blood.common.helper
 
 import android.graphics.ImageFormat
 import android.hardware.Camera
-import android.os.Bundle
+import android.util.Log
 import android.view.SurfaceHolder
-import com.blood.camera1.databinding.ActivityMainBinding
-import com.blood.common.base.BasePermissionActivity
-import com.blood.common.util.ToastUtil
+import android.view.SurfaceView
 import com.blood.common.util.YuvUtil
-import java.io.File
 
-class MainActivity : BasePermissionActivity(), SurfaceHolder.Callback, Camera.PreviewCallback {
+class Camera1Helper(val callback: Callback) : SurfaceHolder.Callback, Camera.PreviewCallback {
 
     companion object {
-        const val TAG = "MainActivity"
+        const val TAG = "Camera1Helper"
     }
 
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var surfaceView: SurfaceView
     private lateinit var buffer: ByteArray
     private lateinit var camera: Camera
     private lateinit var previewSize: Camera.Size
-    private var isCapture = false
     private var nv21_rotated = ByteArray(0)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    interface Callback {
+        fun onSize(width: Int, height: Int)
+        fun onCaptureData(bytes: ByteArray, width: Int, height: Int)
     }
 
-    override fun process() {
-        binding.surfaceView.holder.addCallback(this)
-        binding.capture.setOnClickListener {
-            if (isCapture) return@setOnClickListener
-            isCapture = true
-        }
+    fun init(surfaceView: SurfaceView) {
+        this.surfaceView = surfaceView
+        this.surfaceView.holder.addCallback(this)
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
+        Log.i(TAG, "surfaceCreated: ")
         openCamera()
     }
 
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+        Log.i(TAG, "surfaceChanged: ")
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
+        Log.i(TAG, "surfaceDestroyed: ")
         camera.release()
     }
 
     private fun openCamera() {
         camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK)
-        camera.setPreviewDisplay(binding.surfaceView.holder)
+        camera.setPreviewDisplay(surfaceView.holder)
         camera.setDisplayOrientation(90) // surface旋转了，但是数据并未旋转
 
         val parameters: Camera.Parameters = camera.parameters
@@ -60,6 +55,8 @@ class MainActivity : BasePermissionActivity(), SurfaceHolder.Callback, Camera.Pr
         camera.setPreviewCallbackWithBuffer(this)
 
         nv21_rotated = ByteArray(buffer.size)
+
+        callback.onSize(previewSize.height, previewSize.width)
 
         val focusModeList = parameters.supportedFocusModes
         for (focusMode in focusModeList) { //检查支持的对焦
@@ -74,25 +71,10 @@ class MainActivity : BasePermissionActivity(), SurfaceHolder.Callback, Camera.Pr
     }
 
     override fun onPreviewFrame(data: ByteArray?, camera: Camera?) {
-        doCapture(data)
+        data ?: return
+        YuvUtil.nv21_rotate_to_90(data, nv21_rotated, previewSize.width, previewSize.height)
+        callback.onCaptureData(nv21_rotated, previewSize.height, previewSize.width)
         camera?.addCallbackBuffer(buffer)
-    }
-
-    private fun doCapture(bytes: ByteArray?) {
-        bytes ?: return
-        if (isCapture) {
-            ToastUtil.toast(this, "正在拍照")
-            YuvUtil.nv21_rotate_to_90(bytes, nv21_rotated, previewSize.width, previewSize.height)
-            captureNv21(nv21_rotated)
-            isCapture = false
-        }
-    }
-
-    private fun captureNv21(bytes: ByteArray?) {
-        bytes ?: return
-        // 数据旋转之后，宽高也得变换，否则就会出现花屏
-        YuvUtil.compressNv21(bytes, previewSize.height, previewSize.width, File(filesDir, "camera1.png"))
-        ToastUtil.toast(this, "拍照成功")
     }
 
 }

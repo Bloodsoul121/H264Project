@@ -1,33 +1,35 @@
-package com.blood.touping.push
+package com.blood.videochat.push
 
-import android.media.projection.MediaProjection
 import android.util.Log
+import com.blood.videochat.socket.SocketCallback
+import com.blood.videochat.socket.SocketLive
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
-import org.json.JSONObject
 import java.io.IOException
 import java.net.InetSocketAddress
+import java.nio.ByteBuffer
 
-class PushSocketLive(serverPort: Int) {
+class PushSocketLive(private val socketCallback: SocketCallback) : SocketLive {
 
     companion object {
         const val TAG = "PushSocketLive"
     }
 
-    private val pushSocket: PushWebSocketServer = PushWebSocketServer(InetSocketAddress(serverPort))
-    private var pushLiveCodec: PushLiveCodec? = null
+    private var pushSocket: PushWebSocketServer? = null
 
-    fun start(mediaProjection: MediaProjection) {
-        pushSocket.start()
-        pushLiveCodec = PushLiveCodec(this).apply { startLive(mediaProjection) }
+    override fun connect(serverPort: Int) {
+        pushSocket = PushWebSocketServer(InetSocketAddress(serverPort), socketCallback).apply { start() }
     }
 
-    fun stop() {
-        pushLiveCodec?.stopLive()
+    override fun sendData(bytes: ByteArray) {
+        pushSocket?.sendData(bytes)
+    }
+
+    override fun close() {
         try {
-            pushSocket.close()
-            pushSocket.stop()
+            pushSocket?.close()
+            pushSocket?.stop()
         } catch (e: IOException) {
             e.printStackTrace()
         } catch (e: InterruptedException) {
@@ -35,11 +37,7 @@ class PushSocketLive(serverPort: Int) {
         }
     }
 
-    fun sendData(bytes: ByteArray) {
-        pushSocket.sendData(bytes)
-    }
-
-    private class PushWebSocketServer(address: InetSocketAddress) : WebSocketServer(address) {
+    private class PushWebSocketServer(address: InetSocketAddress, val socketCallback: SocketCallback) : WebSocketServer(address) {
 
         private var mWebSocket: WebSocket? = null
 
@@ -56,11 +54,6 @@ class PushSocketLive(serverPort: Int) {
         override fun onOpen(conn: WebSocket, handshake: ClientHandshake) {
             Log.i(TAG, "onOpen: thread " + Thread.currentThread().name)
             mWebSocket = conn
-
-            val size = JSONObject()
-            size.put("width", 0)
-            size.put("height", 0)
-            mWebSocket?.send(size.toString())
         }
 
         override fun onClose(conn: WebSocket, code: Int, reason: String, remote: Boolean) {
@@ -68,7 +61,11 @@ class PushSocketLive(serverPort: Int) {
         }
 
         override fun onMessage(conn: WebSocket, message: String) {
-            Log.i(TAG, "onMessage: $message")
+        }
+
+        override fun onMessage(conn: WebSocket?, message: ByteBuffer?) {
+            message ?: return
+            socketCallback.onReceive(message)
         }
 
         override fun onError(conn: WebSocket, ex: Exception) {

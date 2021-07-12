@@ -71,8 +71,7 @@ class ClientActivity : AppCompatActivity(), SurfaceHolder.Callback, ClientSocket
 
             val bufferInfo = MediaCodec.BufferInfo()
             var outputBufferIndex = mediaCodec!!.dequeueOutputBuffer(bufferInfo, 100000)
-
-            while (outputBufferIndex > 0) {
+            while (outputBufferIndex >= 0) {
                 mediaCodec!!.releaseOutputBuffer(outputBufferIndex, true)
                 outputBufferIndex = mediaCodec!!.dequeueOutputBuffer(bufferInfo, 0)
             }
