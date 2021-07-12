@@ -8,9 +8,6 @@ android {
         // Caused by: java.lang.SecurityException: Media projections require a foreground service of type ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
         // targetSdkVersion 29 开始禁止直接访问录屏
         targetSdkVersion 28
-
-//        applicationIdSuffix = "push"
-        applicationIdSuffix = "client"
     }
 
     flavorDimensions "version"
@@ -19,10 +16,12 @@ android {
         push {
             dimension "version"
             resValue "string", "appName", "push"
+            applicationIdSuffix = ".push"
         }
         client {
             dimension "version"
             resValue "string", "appName", "client"
+            applicationIdSuffix = ".client"
         }
     }
 
