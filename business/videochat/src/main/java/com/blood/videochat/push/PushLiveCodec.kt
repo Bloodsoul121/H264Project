@@ -24,6 +24,7 @@ class PushLiveCodec : Camera1Helper.Callback {
     private var vps_sps_pps_buf = ByteArray(0)
     private var isRunning = false
     private var isStart = false
+    private var frameIndex = 0
 
     fun startLive(socketLive: SocketLive) {
         this.socketLive = socketLive
@@ -64,7 +65,9 @@ class PushLiveCodec : Camera1Helper.Callback {
             val inputBuffer: ByteBuffer = mediaCodec?.getInputBuffer(index) ?: return
             inputBuffer.clear()
             inputBuffer.put(bytes, 0, bytes.size)
-            mediaCodec?.queueInputBuffer(index, 0, bytes.size, System.currentTimeMillis(), 0)
+            val presentationTimeUs = computePresentationTime(frameIndex.toLong())
+            mediaCodec?.queueInputBuffer(index, 0, bytes.size, presentationTimeUs, 0)
+            frameIndex++
         }
 
         val bufferInfo = MediaCodec.BufferInfo()
@@ -77,6 +80,12 @@ class PushLiveCodec : Camera1Helper.Callback {
             mediaCodec?.releaseOutputBuffer(outputBufferIndex, false)
             outputBufferIndex = mediaCodec?.dequeueOutputBuffer(bufferInfo, 10000) ?: -1
         }
+    }
+
+    private fun computePresentationTime(frameIndex: Long): Long {
+        // 根据帧率计算出每一帧的大概时间点，即 1s -> 1000_000 / 15 是每一帧的时间间隔
+        // 但是，第一帧不是从0开始的，因为dsp需要初始化时间，所以需要加上一个起始时间，随便多少，否则第一帧就直接跳过了
+        return 132 + frameIndex * 1000000 / 15
     }
 
     private fun parseFrame(bytes: ByteArray) {
