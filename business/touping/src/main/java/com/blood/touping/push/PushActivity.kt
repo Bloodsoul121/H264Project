@@ -1,4 +1,4 @@
-package com.blood.touping
+package com.blood.touping.push
 
 import android.content.Intent
 import android.media.projection.MediaProjectionManager
@@ -9,7 +9,6 @@ import com.blood.common.Constants
 import com.blood.common.util.MediaProjectionUtil
 import com.blood.touping.MainActivity.Companion.SOCKET_PORT
 import com.blood.touping.databinding.ActivityPushBinding
-import com.blood.touping.push.PushSocketLive
 
 class PushActivity : AppCompatActivity() {
 
@@ -47,8 +46,7 @@ class PushActivity : AppCompatActivity() {
         if (resultCode == RESULT_OK) {
             if (requestCode == Constants.MEDIA_PROJECTION_REQUEST_CODE) {
                 val mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, data)
-                pushSocketLive = PushSocketLive(SOCKET_PORT)
-                pushSocketLive?.start(mediaProjection)
+                pushSocketLive = PushSocketLive(SOCKET_PORT).apply { start(mediaProjection) }
             }
         }
     }

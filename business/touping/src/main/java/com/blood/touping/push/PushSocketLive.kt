@@ -20,8 +20,7 @@ class PushSocketLive(serverPort: Int) {
 
     fun start(mediaProjection: MediaProjection) {
         pushSocket.start()
-        pushLiveCodec = PushLiveCodec(this)
-        pushLiveCodec?.startLive(mediaProjection)
+        pushLiveCodec = PushLiveCodec(this).apply { startLive(mediaProjection) }
     }
 
     fun stop() {
@@ -45,7 +44,7 @@ class PushSocketLive(serverPort: Int) {
         private var mWebSocket: WebSocket? = null
 
         fun sendData(bytes: ByteArray) {
-            H264Util.writeContent(bytes, null)
+//            H264Util.writeContent(bytes, null)
             if (mWebSocket?.isOpen == true) {
                 mWebSocket?.send(bytes)
             }
@@ -61,19 +60,19 @@ class PushSocketLive(serverPort: Int) {
         }
 
         override fun onClose(conn: WebSocket, code: Int, reason: String, remote: Boolean) {
-            Log.i(TAG, "onClose: thread " + Thread.currentThread().name)
+            Log.i(TAG, "onClose: $code $reason $remote")
         }
 
         override fun onMessage(conn: WebSocket, message: String) {
-            Log.i(TAG, "onMessage: ")
+            Log.i(TAG, "onMessage: $message")
         }
 
         override fun onError(conn: WebSocket, ex: Exception) {
-            Log.i(TAG, "onError: thread " + Thread.currentThread().name)
+            Log.i(TAG, "onError: $ex")
         }
 
         override fun onStart() {
-            Log.i(TAG, "onStart: thread " + Thread.currentThread().name)
+            Log.i(TAG, "onStart: ")
         }
     }
 

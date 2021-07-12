@@ -26,7 +26,9 @@ project.ext {
             "rxjava"          : 'io.reactivex.rxjava3:rxjava:3.0.13',
             "rxandroid"       : 'io.reactivex.rxjava3:rxandroid:3.0.0',
             // json 格式化
-            "gson"            : 'com.google.code.gson:gson:2.8.7'
+            "gson"            : 'com.google.code.gson:gson:2.8.7',
+            // 工具
+            "utilcodex"       : 'com.blankj:utilcodex:1.30.5'
     ]
 
     apts = [

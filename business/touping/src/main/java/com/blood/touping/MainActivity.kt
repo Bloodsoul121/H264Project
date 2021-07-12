@@ -3,6 +3,8 @@ package com.blood.touping
 import android.content.Intent
 import android.os.Bundle
 import com.blood.common.base.BasePermissionActivity
+import com.blood.touping.client.ClientActivity
+import com.blood.touping.push.PushActivity
 
 class MainActivity : BasePermissionActivity() {
 
@@ -18,7 +20,7 @@ class MainActivity : BasePermissionActivity() {
     override fun process() {
         when (BuildConfig.type) {
             "push" -> startActivity(Intent(this, PushActivity::class.java))
-            "server" -> startActivity(Intent(this, ServerActivity::class.java))
+            "client" -> startActivity(Intent(this, ClientActivity::class.java))
         }
     }
 

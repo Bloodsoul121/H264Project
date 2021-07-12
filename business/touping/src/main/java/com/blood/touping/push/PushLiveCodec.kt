@@ -38,7 +38,6 @@ class PushLiveCodec(private val pushSocketLive: PushSocketLive) : Runnable {
             mediaCodec?.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
             val inputSurface: Surface = mediaCodec?.createInputSurface() ?: return
             virtualDisplay = mediaProjection.createVirtualDisplay("screen-live", width, height, 1, DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC, inputSurface, null, null)
-            isRunning = true
             ThreadPoolUtil.getInstance().start(this)
         } catch (e: IOException) {
             e.printStackTrace()
@@ -50,6 +49,7 @@ class PushLiveCodec(private val pushSocketLive: PushSocketLive) : Runnable {
     }
 
     override fun run() {
+        isRunning = true
         mediaCodec?.start()
         while (isRunning) {
             val bufferInfo = MediaCodec.BufferInfo()
@@ -75,9 +75,11 @@ class PushLiveCodec(private val pushSocketLive: PushSocketLive) : Runnable {
         val naluType = (bytes[offset].toInt() and 0x7e) shr 1
         when (naluType) {
             NAL_VPS -> {
+                // 保存 vps sps pps 信息，因为编码只会生成一条数据
                 vps_sps_pps_buf = bytes
             }
             NAL_I -> {
+                // 将头信息与I帧拼接一起
                 val newBuf = ByteArray(vps_sps_pps_buf.size + bytes.size)
                 System.arraycopy(vps_sps_pps_buf, 0, newBuf, 0, vps_sps_pps_buf.size)
                 System.arraycopy(bytes, 0, newBuf, vps_sps_pps_buf.size, bytes.size)
