@@ -18,6 +18,7 @@ class Camera1Helper(val callback: Callback) : SurfaceHolder.Callback, Camera.Pre
     private lateinit var camera: Camera
     private lateinit var previewSize: Camera.Size
     private var nv21_rotated = ByteArray(0)
+    private var nv12 = ByteArray(0)
 
     interface Callback {
         fun onSize(width: Int, height: Int)
@@ -66,6 +67,7 @@ class Camera1Helper(val callback: Callback) : SurfaceHolder.Callback, Camera.Pre
                 parameters.focusMode = Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE
             }
         }
+        camera.parameters = parameters
 
         camera.startPreview()
     }
@@ -73,7 +75,8 @@ class Camera1Helper(val callback: Callback) : SurfaceHolder.Callback, Camera.Pre
     override fun onPreviewFrame(data: ByteArray?, camera: Camera?) {
         data ?: return
         YuvUtil.nv21_rotate_to_90(data, nv21_rotated, previewSize.width, previewSize.height)
-        callback.onCaptureData(nv21_rotated, previewSize.height, previewSize.width)
+        nv12 = YuvUtil.nv21toNV12(nv21_rotated)
+        callback.onCaptureData(nv12, previewSize.height, previewSize.width)
         camera?.addCallbackBuffer(buffer)
     }
 

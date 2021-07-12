@@ -42,6 +42,8 @@ class MainActivity : BasePermissionActivity() {
             binding.call.isEnabled = false
             binding.receive.isEnabled = false
             socketLive = PullSocketLive(pullLiveCodec!!).apply { connect(SOCKET_PORT) }
+            pushLiveCodec?.startLive(socketLive!!)
+            pullLiveCodec?.startLive(socketLive!!)
         }
 
         pushLiveCodec = PushLiveCodec()

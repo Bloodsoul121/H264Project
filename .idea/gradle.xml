@@ -12,6 +12,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/business" />
+            <option value="$PROJECT_DIR$/business/camera1" />
             <option value="$PROJECT_DIR$/business/videochat" />
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/core/common" />

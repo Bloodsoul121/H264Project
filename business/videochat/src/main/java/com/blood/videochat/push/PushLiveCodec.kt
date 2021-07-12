@@ -4,8 +4,11 @@ import android.media.MediaCodec
 import android.media.MediaCodecInfo
 import android.media.MediaFormat
 import com.blood.common.helper.Camera1Helper
+import com.blood.common.util.H264Util
 import com.blood.common.util.MediaCodecUtil
+import com.blood.videochat.App
 import com.blood.videochat.socket.SocketLive
+import java.io.File
 import java.io.IOException
 import java.nio.ByteBuffer
 
@@ -68,6 +71,8 @@ class PushLiveCodec : Camera1Helper.Callback {
         var outputBufferIndex = mediaCodec?.dequeueOutputBuffer(bufferInfo, 10000) ?: -1
         while (outputBufferIndex > -1) {
             val byteArray = MediaCodecUtil.getOutputBufferBytes(mediaCodec!!, outputBufferIndex, bufferInfo)
+//            H264Util.writeContent(byteArray, null)
+//            H264Util.writeBytes(byteArray, File(App.context.filesDir, "push.h265"))
             parseFrame(byteArray)
             mediaCodec?.releaseOutputBuffer(outputBufferIndex, false)
             outputBufferIndex = mediaCodec?.dequeueOutputBuffer(bufferInfo, 10000) ?: -1

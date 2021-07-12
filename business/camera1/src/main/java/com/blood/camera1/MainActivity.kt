@@ -69,6 +69,7 @@ class MainActivity : BasePermissionActivity(), SurfaceHolder.Callback, Camera.Pr
                 parameters.focusMode = Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE
             }
         }
+        camera.parameters = parameters
 
         camera.startPreview()
     }
