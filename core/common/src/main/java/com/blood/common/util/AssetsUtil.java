@@ -10,6 +10,13 @@ import java.io.InputStream;
 
 public class AssetsUtil {
 
+    public static void copyAssets(Context context, String srcFile) {
+        File file = new File(context.getFilesDir(), srcFile);
+        if (!file.exists()) {
+            AssetsUtil.copyAssets(context, srcFile, file);
+        }
+    }
+
     public static void copyAssets(Context context, String srcFile, String dstFile) {
         if (TextUtils.isEmpty(srcFile) || TextUtils.isEmpty(dstFile)) {
             return;
