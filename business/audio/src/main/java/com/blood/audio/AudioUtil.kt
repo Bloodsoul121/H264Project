@@ -7,6 +7,7 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.ByteBuffer
+import kotlin.math.max
 
 /**
  * 暂时只适合 44100 2通道，其他的要转码，也就是使用 MediaMuxer 重新采样
@@ -393,6 +394,116 @@ class AudioUtil {
                 mediaCodec.release()
                 mediaMuxer.release()
             } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+
+        fun appendVideo(videoInput1: String,  // 视频1
+                        videoInput2: String,  // 视频2
+                        outputMp4: String // 输出合成视频
+        ) {
+            try {
+                val mediaMuxer = MediaMuxer(outputMp4, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+                val mediaExtractor1 = MediaExtractor().apply { setDataSource(videoInput1) }
+                val mediaExtractor2 = MediaExtractor().apply { setDataSource(videoInput2) }
+
+                val videoTrackIndex1: Int = selectTrack(mediaExtractor1, false)
+                val videoTrackFormat1 = mediaExtractor1.getTrackFormat(videoTrackIndex1)
+                val videoDuration = videoTrackFormat1.getLong(MediaFormat.KEY_DURATION)
+                val videoTrackIndex = mediaMuxer.addTrack(videoTrackFormat1)
+
+                val audioTrackIndex1: Int = selectTrack(mediaExtractor1, true)
+                val audioTrackFormat1 = mediaExtractor1.getTrackFormat(audioTrackIndex1)
+                val audioDuration = audioTrackFormat1.getLong(MediaFormat.KEY_DURATION)
+                val audioTrackIndex = mediaMuxer.addTrack(audioTrackFormat1)
+
+                val fileDuration1 = max(videoDuration, audioDuration)
+
+                val videoTrackIndex2: Int = selectTrack(mediaExtractor2, false)
+                val audioTrackIndex2: Int = selectTrack(mediaExtractor2, true)
+
+                mediaMuxer.start()
+
+                var byteBuffer = ByteBuffer.allocateDirect(500 * 1024)
+                var bufferInfo = MediaCodec.BufferInfo()
+
+                mediaExtractor1.selectTrack(videoTrackIndex1)
+
+                // 视频1 - 视频通道
+                while (true) {
+                    val size = mediaExtractor1.readSampleData(byteBuffer, 0)
+                    if (size < 0) { // 表示读完了
+                        break
+                    }
+                    bufferInfo.offset = 0
+                    bufferInfo.presentationTimeUs = mediaExtractor1.sampleTime
+                    bufferInfo.flags = mediaExtractor1.sampleFlags
+                    bufferInfo.size = size
+                    mediaMuxer.writeSampleData(videoTrackIndex, byteBuffer, bufferInfo)
+                    mediaExtractor1.advance()
+                }
+
+                bufferInfo.presentationTimeUs = 0
+                mediaExtractor1.unselectTrack(videoTrackIndex1)
+                mediaExtractor1.selectTrack(audioTrackIndex1)
+
+                // 视频1 - 音频通道
+                while (true) {
+                    val size = mediaExtractor1.readSampleData(byteBuffer, 0)
+                    if (size < 0) {
+                        break
+                    }
+                    bufferInfo.offset = 0
+                    bufferInfo.presentationTimeUs = mediaExtractor1.sampleTime
+                    bufferInfo.flags = mediaExtractor1.sampleFlags
+                    bufferInfo.size = size
+                    mediaMuxer.writeSampleData(audioTrackIndex, byteBuffer, bufferInfo)
+                    mediaExtractor1.advance()
+                }
+
+                byteBuffer = ByteBuffer.allocateDirect(500 * 1024)
+                bufferInfo = MediaCodec.BufferInfo()
+                bufferInfo.presentationTimeUs = 0
+                mediaExtractor2.selectTrack(videoTrackIndex2)
+
+                // 视频2 - 视频通道
+                while (true) {
+                    val size = mediaExtractor2.readSampleData(byteBuffer, 0)
+                    if (size < 0) {
+                        break
+                    }
+                    bufferInfo.offset = 0
+                    bufferInfo.presentationTimeUs = fileDuration1 + mediaExtractor2.sampleTime
+                    bufferInfo.flags = mediaExtractor2.sampleFlags
+                    bufferInfo.size = size
+                    mediaMuxer.writeSampleData(videoTrackIndex, byteBuffer, bufferInfo)
+                    mediaExtractor2.advance()
+                }
+
+                bufferInfo.presentationTimeUs = 0
+                mediaExtractor2.unselectTrack(videoTrackIndex2)
+                mediaExtractor2.selectTrack(audioTrackIndex2)
+
+                // 视频2 - 音频通道
+                while (true) {
+                    val size = mediaExtractor2.readSampleData(byteBuffer, 0)
+                    if (size < 0) {
+                        break
+                    }
+                    bufferInfo.offset = 0
+                    bufferInfo.presentationTimeUs = fileDuration1 + mediaExtractor2.sampleTime
+                    bufferInfo.flags = mediaExtractor2.sampleFlags
+                    bufferInfo.size = size
+                    mediaMuxer.writeSampleData(audioTrackIndex, byteBuffer, bufferInfo)
+                    mediaExtractor2.advance()
+                }
+
+                mediaExtractor1.release()
+                mediaExtractor2.release()
+                mediaMuxer.stop()
+                mediaMuxer.release()
+                Log.i(TAG, "appendVideo: over")
+            } catch (e: java.lang.Exception) {
                 e.printStackTrace()
             }
         }

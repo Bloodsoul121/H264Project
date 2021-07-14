@@ -22,6 +22,7 @@ class MainActivity : BasePermissionActivity() {
     override fun process() {
         AssetsUtil.copyAssets(this, "audio.mp3")
         AssetsUtil.copyAssets(this, "doufuhua.mp4")
+        AssetsUtil.copyAssets(this, "hot.mp4")
 
         binding.clipAudio.setOnClickListener {
             GlobalScope.launch {
@@ -65,6 +66,16 @@ class MainActivity : BasePermissionActivity() {
                 FileUtil.deleteFile(mixMp3Path)
                 FileUtil.deleteFile(mixMp4Path)
                 AudioUtil.mixVideoAudio2Mp4(videoPath, bgPath, mixMp3Path, mixMp4Path, pcmPath1, pcmPath2, pcmPath3, 10_000_000, 18_000_000, 100, 100)
+            }
+        }
+
+        binding.appendAudioVideo.setOnClickListener {
+            GlobalScope.launch {
+                val videoInput1 = File(filesDir, "doufuhua.mp4").absolutePath
+                val videoInput2 = File(filesDir, "hot.mp4").absolutePath
+                val outputMp4 = File(filesDir, "append.mp4").absolutePath
+                FileUtil.deleteFile(outputMp4)
+                AudioUtil.appendVideo(videoInput1, videoInput2, outputMp4)
             }
         }
 

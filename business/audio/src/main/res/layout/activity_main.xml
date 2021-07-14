@@ -26,5 +26,11 @@
             android:text="合成音视频"
             tools:ignore="HardcodedText" />
 
+        <Button
+            android:id="@+id/append_audio_video"
+            style="@style/style_button"
+            android:text="拼接音视频"
+            tools:ignore="HardcodedText" />
+
     </LinearLayout>
 </layout>
