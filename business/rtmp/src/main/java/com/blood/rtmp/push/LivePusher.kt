@@ -10,14 +10,20 @@ class LivePusher : Thread() {
 
     companion object {
         const val TAG = "LivePusher"
+
+        init {
+            System.loadLibrary("native-lib")
+        }
     }
 
     private val rtmpQueue = LinkedBlockingQueue<RTMPPackage>()
     private var mediaProjection: MediaProjection? = null
     private var videoCodec: VideoCodec? = null
+    private var url: String? = null
     private var isRunning = false
 
-    fun startLive(mediaProjection: MediaProjection) {
+    fun startLive(mediaProjection: MediaProjection, url: String) {
+        this.url = url
         this.mediaProjection = mediaProjection
         this.videoCodec = VideoCodec(this)
         start()
@@ -36,23 +42,26 @@ class LivePusher : Thread() {
     override fun run() {
         super.run()
 
+        if (!connect(url ?: return)) {
+            Log.e(TAG, "connect failed")
+            return
+        }
+
         videoCodec?.startLive(mediaProjection!!)
 
         try {
-
             isRunning = true
-
             while (isRunning || isInterrupted) {
-
                 // 数据推流
                 val rtmpPackage = rtmpQueue.take()
-
-                Log.i(TAG, "run: $rtmpPackage")
+                sendData(rtmpPackage!!.buffer!!, rtmpPackage.buffer!!.size, rtmpPackage.tms, rtmpPackage.type)
             }
-
         } catch (e: InterruptedException) {
             interrupt()
         }
     }
+
+    private external fun connect(url: String): Boolean
+    private external fun sendData(data: ByteArray, len: Int, tms: Long, type: Int): Boolean
 
 }

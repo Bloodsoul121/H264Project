@@ -12,6 +12,10 @@ import com.blood.rtmp.push.LivePusher
 
 class MainActivity : BasePermissionActivity() {
 
+    companion object {
+        const val URL = "rtmp://live-push.bilivideo.com/live-bvc/?streamname=live_312497503_45360587&key=d502577a2f405faecb48cd56f433d03f&schedule=rtmp&pflag=1"
+    }
+
     private lateinit var binding: ActivityMainBinding
     private lateinit var mediaProjectionManager: MediaProjectionManager
     private var livePusher: LivePusher? = null
@@ -43,7 +47,7 @@ class MainActivity : BasePermissionActivity() {
     }
 
     private fun push(mediaProjection: MediaProjection) {
-        livePusher = LivePusher().apply { startLive(mediaProjection) }
+        livePusher = LivePusher().apply { startLive(mediaProjection, URL) }
     }
 
 }

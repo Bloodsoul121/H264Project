@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10.2)
 project("nativedemo")
 
-#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY  ${PROJECT_SOURCE_DIR}/lib)
+add_subdirectory(librtmp)
 
 add_library(
         native-lib
@@ -17,9 +17,5 @@ find_library(
 target_link_libraries(
         native-lib
         ${log-lib}
+        rtmp
 )
-
-message(${PROJECT_SOURCE_DIR})
-message(${PROJECT_BINARY_DIR})
-message(${CMAKE_SOURCE_DIR})
-message(${ANDROID_ABI})
