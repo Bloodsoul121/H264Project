@@ -17,10 +17,12 @@ abstract class BasePermissionActivity : BaseActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == RESULT_OK) {
-            process()
-        } else {
-            finish()
+        if (requestCode == PERMISSION_CODE) {
+            if (resultCode == RESULT_OK) {
+                process()
+            } else {
+                finish()
+            }
         }
     }
 

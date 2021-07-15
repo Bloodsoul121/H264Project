@@ -4,6 +4,7 @@ import android.os.Bundle
 import com.blood.audio.databinding.ActivityMainBinding
 import com.blood.common.base.BasePermissionActivity
 import com.blood.common.util.AssetsUtil
+import com.blood.common.util.AudioUtil
 import com.blood.common.util.FileUtil
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
