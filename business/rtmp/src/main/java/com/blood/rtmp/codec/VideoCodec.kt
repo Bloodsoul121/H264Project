@@ -67,11 +67,9 @@ class VideoCodec(private val livePusher: LivePusher) {
                 }
 
                 val outData = MediaCodecUtil.getOutputBufferBytes(mediaCodec!!, index, bufferInfo)
-
-                // 发包
                 val type = RTMPPackage.RTMP_PACKET_TYPE_VIDEO
                 val tms = bufferInfo.presentationTimeUs / 1000 - startTime
-                livePusher.addPackage(RTMPPackage(outData, tms, type))
+                livePusher.addPackage(RTMPPackage(outData, tms, type)) // 发包
 
                 mediaCodec?.releaseOutputBuffer(index, false)
             }

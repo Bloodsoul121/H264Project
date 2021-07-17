@@ -22,9 +22,9 @@ typedef struct {
 // 定义一个LiveData指针
 LiveData *liveData = nullptr;
 
-int sendVideo(jbyte *data, jint len, jlong tms);
+int sendVideo(jbyte *buf, jint len, jlong tms);
 
-int sendAudio(jbyte *data, jint len, jlong tms, jint type);
+int sendAudio(jbyte *buf, jint len, jlong tms, jint type);
 
 void prepareSpsPps(jbyte *buf, jint len, LiveData *data);
 
@@ -33,6 +33,8 @@ RTMPPacket *createSpsPpsPackage(LiveData *data);
 RTMPPacket *createVideoPackage(jbyte *buf, jint len, jlong tms, LiveData *data);
 
 int sendPacket(RTMPPacket *packet);
+
+RTMPPacket *createAudioPacket(jbyte *buf, jint len, jlong tms, jint type, LiveData *data);
 
 extern "C"
 JNIEXPORT jboolean JNICALL
@@ -81,23 +83,23 @@ Java_com_blood_rtmp_push_LivePusher_sendData(JNIEnv *env, jobject thiz, jbyteArr
     return ret;
 }
 
-int sendVideo(jbyte *data, jint len, jlong tms) {
+int sendVideo(jbyte *buf, jint len, jlong tms) {
     int ret = 0;
     // sps
-    if ((data[4] & 0x1F) == 7) {
+    if ((buf[4] & 0x1F) == 7) {
         if (liveData && (!liveData->sps || !liveData->pps)) {
             // 解析sps，pps数据
-            prepareSpsPps(data, len, liveData);
+            prepareSpsPps(buf, len, liveData);
             return ret;
         }
     }
     // 关键帧，先发送sps，pps包
-    if ((data[4] & 0x1F) == 5) {
+    if ((buf[4] & 0x1F) == 5) {
         RTMPPacket *packet = createSpsPpsPackage(liveData);
         sendPacket(packet);
     }
     // 发送关键帧和非关键帧包
-    RTMPPacket *packet = createVideoPackage(data, len, tms, liveData);
+    RTMPPacket *packet = createVideoPackage(buf, len, tms, liveData);
     ret = sendPacket(packet);
     return ret;
 }
@@ -180,7 +182,7 @@ RTMPPacket *createSpsPpsPackage(LiveData *data) {
 }
 
 RTMPPacket *createVideoPackage(jbyte *buf, jint len, jlong tms, LiveData *data) {
-    buf += 4;
+    buf += 4; // 跳过分隔符
     len -= 4;
     // 长度
     int body_size = len + 9;
@@ -188,12 +190,12 @@ RTMPPacket *createVideoPackage(jbyte *buf, jint len, jlong tms, LiveData *data) 
     RTMPPacket *packet = (RTMPPacket *) malloc(sizeof(RTMPPacket));
     RTMPPacket_Alloc(packet, body_size);
 
-    if (buf[0] == 0x65) {
+    if ((buf[0] & 0x1F) == 5) {
         packet->m_body[0] = 0x17;
-        LOGI("发送关键帧 data");
+        LOGI("发送关键帧");
     } else {
         packet->m_body[0] = 0x27;
-        LOGI("发送非关键帧 data");
+        LOGI("发送非关键帧");
     }
 
     //    固定的大小
@@ -220,6 +222,33 @@ RTMPPacket *createVideoPackage(jbyte *buf, jint len, jlong tms, LiveData *data) 
     return packet;
 }
 
-int sendAudio(jbyte *data, jint len, jlong tms, jint type) {
-    return 0;
+int sendAudio(jbyte *buf, jint len, jlong tms, jint type) {
+    LOGI("sendAudio");
+    RTMPPacket *packet = createAudioPacket(buf, len, tms, type, liveData);
+    int ret = sendPacket(packet);
+    return ret;
+}
+
+RTMPPacket *createAudioPacket(jbyte *buf, jint len, jlong tms, jint type, LiveData *data) {
+    // 组装音频包  两个字节   是固定的   af    如果是第一次发  你就是 01   如果后面  00  或者是 01  aac
+    int body_size = len + 2;
+    RTMPPacket *packet = (RTMPPacket *) malloc(sizeof(RTMPPacket));
+    RTMPPacket_Alloc(packet, body_size);
+    // 音频头
+    packet->m_body[0] = 0xAF;
+    // 头
+    if (type == 1) {
+        packet->m_body[1] = 0x00;
+    } else {
+        packet->m_body[1] = 0x01;
+    }
+    memcpy(&packet->m_body[2], buf, len);
+    packet->m_packetType = RTMP_PACKET_TYPE_AUDIO;
+    packet->m_nChannel = 0x05;
+    packet->m_nBodySize = body_size;
+    packet->m_nTimeStamp = tms;
+    packet->m_hasAbsTimestamp = 0;
+    packet->m_headerType = RTMP_PACKET_SIZE_LARGE;
+    packet->m_nInfoField2 = data->rtmp->m_stream_id;
+    return packet;
 }

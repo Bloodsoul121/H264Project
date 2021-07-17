@@ -3,6 +3,7 @@ package com.blood.rtmp.push
 import android.media.projection.MediaProjection
 import android.util.Log
 import com.blood.rtmp.bean.RTMPPackage
+import com.blood.rtmp.codec.AudioCodec
 import com.blood.rtmp.codec.VideoCodec
 import java.util.concurrent.LinkedBlockingQueue
 
@@ -19,6 +20,7 @@ class LivePusher : Thread() {
     private val rtmpQueue = LinkedBlockingQueue<RTMPPackage>()
     private var mediaProjection: MediaProjection? = null
     private var videoCodec: VideoCodec? = null
+    private var audioCodec: AudioCodec? = null
     private var url: String? = null
     private var isRunning = false
 
@@ -26,12 +28,14 @@ class LivePusher : Thread() {
         this.url = url
         this.mediaProjection = mediaProjection
         this.videoCodec = VideoCodec(this)
+        this.audioCodec = AudioCodec(this)
         start()
     }
 
     fun stopLive() {
         isRunning = false
         videoCodec?.stopLive()
+        audioCodec?.stopLive()
         interrupt()
     }
 
@@ -48,6 +52,7 @@ class LivePusher : Thread() {
         }
 
         videoCodec?.startLive(mediaProjection!!)
+        audioCodec?.startLive()
 
         try {
             isRunning = true
