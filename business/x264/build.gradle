@@ -1,0 +1,18 @@
+apply from: "${rootProject.rootDir}/moduleDebug.gradle"
+apply from: "${rootProject.rootDir}/config.gradle"
+
+android {
+
+    defaultConfig {
+        // Caused by: java.lang.SecurityException: Media projections require a foreground service of type ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
+        // targetSdkVersion 29 开始禁止直接访问录屏
+        targetSdkVersion 28
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+            version "3.10.2"
+        }
+    }
+}
