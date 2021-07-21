@@ -1,7 +1,3 @@
-//
-// Created by 蔡光祖 on 2/22/21.
-//
-
 #ifndef AUDIOVIDEODEMO_JAVACALLHELPER_H
 #define AUDIOVIDEODEMO_JAVACALLHELPER_H
 

@@ -3,6 +3,7 @@
 #include <pthread.h>
 #include "util/logutil.h"
 #include "VideoChannel.h"
+#include "AudioChannel.h"
 #include "util/safe_queue.h"
 #include "callback/JavaCallHelper.h"
 
@@ -20,6 +21,7 @@ JavaVM *javaVM = nullptr;//虚拟机的引用
 
 JavaCallHelper *javaCallHelper = nullptr;
 VideoChannel *videoChannel = nullptr;
+AudioChannel *audioChannel = nullptr;
 
 void *start(void *args);
 
@@ -98,7 +100,7 @@ void *start(void *args) {
             LOGE("rtmp连接流失败:%s", url);
             break;
         }
-        LOGE("rtmp连接成功----------->:%s", url);
+        LOGI("rtmp连接成功----------->:%s", url);
 
         //准备好了 可以开始推流了
         readyPushing = 1;
@@ -107,9 +109,9 @@ void *start(void *args) {
         packets.setWork(1);
         RTMPPacket *packet = nullptr;
 
-//        // 音频 发送头包
-//        RTMPPacket *audioHeader = audioChannel->getAudioConfig();
-//        callBack(audioHeader);
+        // 音频 发送头包
+        RTMPPacket *audioHeader = audioChannel->getAudioConfig();
+        callBack(audioHeader);
 
         //循环从队列取包 然后发送
         while (isStart) {
@@ -177,14 +179,27 @@ extern "C"
 JNIEXPORT jint JNICALL
 Java_com_blood_x264_push_LivePusher_nativeInitAudioCodec(JNIEnv *env, jobject thiz,
                                                          jint sample_rate, jint channels) {
-
+    // 初始化faac编码  音频
+    audioChannel = new AudioChannel();
+    audioChannel->setCallback(callBack);
+    audioChannel->openCodec(sample_rate, channels);
+    return audioChannel->getInputByteNum();
 }
 
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_blood_x264_push_LivePusher_nativeSendAudioData(JNIEnv *env, jobject thiz,
                                                         jbyteArray buffer, jint len) {
-
+    // 没有链接 成功
+    if (!audioChannel || !readyPushing) {
+        return;
+    }
+    //C层的字节数组
+    jbyte *data = env->GetByteArrayElements(buffer, nullptr);
+    //编码
+    audioChannel->encodeFrame(reinterpret_cast<int32_t *>(data), len);
+    //释放掉
+    env->ReleaseByteArrayElements(buffer, data, 0);
 }
 
 extern "C"
@@ -204,6 +219,10 @@ Java_com_blood_x264_push_LivePusher_nativeRelease(JNIEnv *env, jobject thiz) {
     if (videoChannel) {
         delete (videoChannel);
         videoChannel = nullptr;
+    }
+    if (audioChannel) {
+        delete (audioChannel);
+        audioChannel = nullptr;
     }
     if (javaCallHelper) {
         delete (javaCallHelper);
