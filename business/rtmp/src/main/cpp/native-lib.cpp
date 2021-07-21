@@ -223,7 +223,7 @@ RTMPPacket *createVideoPackage(jbyte *buf, jint len, jlong tms, LiveData *data) 
 }
 
 int sendAudio(jbyte *buf, jint len, jlong tms, jint type) {
-    LOGI("sendAudio");
+    LOGI("sendAudio %d", len);
     RTMPPacket *packet = createAudioPacket(buf, len, tms, type, liveData);
     int ret = sendPacket(packet);
     return ret;

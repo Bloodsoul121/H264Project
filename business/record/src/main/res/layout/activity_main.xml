@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="20dp"
+        tools:context=".MainActivity">
+
+        <Button
+            android:id="@+id/startRecord"
+            style="@style/style_button"
+            android:text="音频录制 · 开始"
+            tools:ignore="HardcodedText" />
+
+        <Button
+            android:id="@+id/stopRecord"
+            style="@style/style_button"
+            android:text="音频录制 · 停止"
+            tools:ignore="HardcodedText" />
+
+        <Button
+            android:id="@+id/playPcm"
+            style="@style/style_button"
+            android:text="音频录制 · 播放"
+            tools:ignore="HardcodedText" />
+
+        <Button
+            android:id="@+id/stopPlayPcm"
+            style="@style/style_button"
+            android:text="音频录制 · 播放（关闭）"
+            tools:ignore="HardcodedText" />
+
+    </LinearLayout>
+</layout>

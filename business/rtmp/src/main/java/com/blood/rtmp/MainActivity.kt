@@ -1,14 +1,16 @@
 package com.blood.rtmp
 
 import android.content.Intent
-import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
+import com.blankj.utilcode.util.Utils
 import com.blood.common.Constants.MEDIA_PROJECTION_REQUEST_CODE
 import com.blood.common.base.BasePermissionActivity
+import com.blood.common.util.FileUtil
 import com.blood.common.util.MediaProjectionUtil
 import com.blood.rtmp.databinding.ActivityMainBinding
 import com.blood.rtmp.push.LivePusher
+import java.io.File
 
 class MainActivity : BasePermissionActivity() {
 
@@ -32,7 +34,15 @@ class MainActivity : BasePermissionActivity() {
     }
 
     override fun process() {
-        mediaProjectionManager = MediaProjectionUtil.requestMediaProject(this, MEDIA_PROJECTION_REQUEST_CODE)
+        FileUtil.deleteFile(File(Utils.getApp().filesDir, "audio.pcm"))
+        FileUtil.deleteFile(File(Utils.getApp().filesDir, "audio.mp3"))
+
+        binding.startLive.setOnClickListener {
+            mediaProjectionManager = MediaProjectionUtil.requestMediaProject(this, MEDIA_PROJECTION_REQUEST_CODE)
+        }
+        binding.stopLive.setOnClickListener {
+            livePusher?.stopLive()
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -41,13 +51,9 @@ class MainActivity : BasePermissionActivity() {
         if (resultCode == RESULT_OK) {
             if (requestCode == MEDIA_PROJECTION_REQUEST_CODE) {
                 val mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, data)
-                push(mediaProjection)
+                livePusher = LivePusher().apply { startLive(mediaProjection, URL) }
             }
         }
-    }
-
-    private fun push(mediaProjection: MediaProjection) {
-        livePusher = LivePusher().apply { startLive(mediaProjection, URL) }
     }
 
 }

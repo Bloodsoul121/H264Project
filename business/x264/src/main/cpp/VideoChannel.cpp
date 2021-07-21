@@ -84,7 +84,7 @@ void VideoChannel::encodeFrame(int8_t *data) {
     }
 
     //编码成H264码流
-    //编码出了几个 nalu （暂时理解为帧）  1   pi_nal  1  永远是1
+    //编码出了几个 nalu （暂时理解为帧）  1   pi_nal  1  永远是1 相机是一帧一帧传输的
     int pi_nal;
     //编码出的数据
     x264_nal_t *pp_nals;
@@ -98,13 +98,20 @@ void VideoChannel::encodeFrame(int8_t *data) {
 
     LOGI("编码帧数 %d", pi_nal);
 
+    /*
+     * x264输出顺序
+     * sps
+     * pps
+     * I帧
+     */
+
     uint8_t sps[100];
     uint8_t pps[100];
     int sps_len, pps_len;
     if (pi_nal > 0) {
         for (int i = 0; i < pi_nal; i++) {
 //            javaCallHelper->postH264(reinterpret_cast<char *>(pp_nals[i].p_payload), pp_nals[i].i_payload, THREAD_MAIN);
-//            javaCallHelper->postH264(reinterpret_cast<char *>(pp_nals[i].p_payload), pp_nals[i].i_payload, THREAD_CHILD);
+            javaCallHelper->postH264(reinterpret_cast<char *>(pp_nals[i].p_payload), pp_nals[i].i_payload, THREAD_CHILD);
             if (pp_nals[i].i_type == NAL_SPS) {
                 sps_len = pp_nals[i].i_payload - 4;
                 memcpy(sps, pp_nals[i].p_payload + 4, sps_len);

@@ -5,6 +5,7 @@
 #include <jni.h>
 #include <x264.h>
 #include "librtmp/rtmp.h"
+#include "callback/JavaCallHelper.h"
 
 class VideoChannel {
 
@@ -47,6 +48,8 @@ private:
 
     VideoCallback callback;
 
+public:
+    JavaCallHelper *javaCallHelper;
 };
 
 

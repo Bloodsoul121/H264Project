@@ -59,7 +59,8 @@ class LivePusher : Thread() {
             while (isRunning || isInterrupted) {
                 // 数据推流
                 val rtmpPackage = rtmpQueue.take()
-                sendData(rtmpPackage!!.buffer!!, rtmpPackage.buffer!!.size, rtmpPackage.tms, rtmpPackage.type)
+                val result = sendData(rtmpPackage!!.buffer!!, rtmpPackage.buffer!!.size, rtmpPackage.tms, rtmpPackage.type)
+//                Log.i(TAG, "sendData: $result")
             }
         } catch (e: InterruptedException) {
             interrupt()

@@ -10,6 +10,12 @@ class LivePusher {
         init {
             System.loadLibrary("native-lib")
         }
+
+        // jni回调java层的方法  byte[] data    char *data
+        @JvmStatic
+        private fun postData(data: ByteArray) {
+            Log.i("LivePusher", "postData: " + data.size)
+        }
     }
 
     val videoChannel = VideoChannel(this, 10, 800_000)
@@ -29,11 +35,6 @@ class LivePusher {
         videoChannel.stopLive()
         audioChannel.stopLive()
         nativeStop()
-    }
-
-    // jni回调java层的方法  byte[] data    char *data
-    private fun postData(data: ByteArray) {
-        Log.i("LivePusher", "postData: " + data.size)
     }
 
     // 初始化

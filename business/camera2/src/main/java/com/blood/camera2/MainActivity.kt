@@ -36,6 +36,7 @@ class MainActivity : BasePermissionActivity(), TextureView.SurfaceTextureListene
 
     override fun process() {
         binding.textureView.surfaceTextureListener = this
+        FileUtil.deleteFile(File(filesDir, "camera2.txt"))
         FileUtil.deleteFile(File(filesDir, "camera2.h264"))
     }
 
@@ -114,6 +115,7 @@ class MainActivity : BasePermissionActivity(), TextureView.SurfaceTextureListene
             val byteBuffer: ByteBuffer = mediaCodec?.getOutputBuffer(outIndex) ?: return
             val data = ByteArray(byteBuffer.remaining())
             byteBuffer[data]
+            H264Util.writeContent(data, File(filesDir, "camera2.txt"))
             H264Util.writeBytes(data, File(filesDir, "camera2.h264"))
             mediaCodec?.releaseOutputBuffer(outIndex, false)
         }

@@ -61,7 +61,7 @@ class H264Util {
                 // 打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件
                 writer = FileOutputStream(saveFile, true)
                 writer.write(array)
-                writer.write('\n'.toInt())
+//                writer.write('\n'.toInt())
             } catch (e: IOException) {
                 e.printStackTrace()
             } finally {

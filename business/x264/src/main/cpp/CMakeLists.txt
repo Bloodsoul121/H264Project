@@ -4,7 +4,7 @@ project("nativedemo")
 add_subdirectory(librtmp)
 
 #将所有cpp文件定义为一个变量
-file(GLOB cpp_source *.cpp util/*.cpp)
+file(GLOB cpp_source *.cpp util/*.cpp callback/*.cpp)
 
 #头文件成功引入
 include_directories(${CMAKE_SOURCE_DIR}/x264/${ANDROID_ABI}/include)
