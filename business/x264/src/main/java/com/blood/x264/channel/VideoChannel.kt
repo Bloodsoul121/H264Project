@@ -16,7 +16,10 @@ class VideoChannel(
         private const val TAG = "VideoChannel"
     }
 
+    @Volatile
     private var isRunning = false
+
+    @Volatile
     private var isFirstInit = true
 
     private var nv21: ByteArray = ByteArray(0)

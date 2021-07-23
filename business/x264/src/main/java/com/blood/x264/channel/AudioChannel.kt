@@ -11,7 +11,9 @@ import kotlin.math.max
 
 class AudioChannel(private val livePusher: LivePusher, val sampleRate: Int, val channels: Int) {
 
+    @Volatile
     private var isRunning = false
+
     private var buffer: ByteArray? = null
     private var audioRecord: AudioRecord? = null
     private var channelConfig = AudioFormat.CHANNEL_IN_STEREO
