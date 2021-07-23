@@ -122,6 +122,9 @@ void *start(void *args) {
             if (!packet) {
                 continue;
             }
+
+            LOGI("start rtmp : %p", rtmp);
+
             // 给rtmp的流id
             packet->m_nInfoField2 = rtmp->m_stream_id;
             //发送包 1:加入队列发送

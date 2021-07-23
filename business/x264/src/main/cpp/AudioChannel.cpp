@@ -24,6 +24,8 @@ void AudioChannel::openCodec(int sampleRate, int channels) {
     //实例化faac编码器
     codec = faacEncOpen(sampleRate, channels, &inputSamples, &maxOutputBytes);
 
+    LOGI("AudioChannel openCodec codec : %p", codec);
+
     //输入容器真正大小，2通道
     inputByteNum = inputSamples * 2;
 
@@ -47,9 +49,9 @@ void AudioChannel::openCodec(int sampleRate, int channels) {
 void AudioChannel::encodeFrame(int32_t *data, int len) {
     //将pcm数据编码成aac数据
     int bytelen = faacEncEncode(codec, data, len, outputBuffer, maxOutputBytes);
-    LOGI("AudioChannel faacEncEncode bytelen : %d", bytelen);
     //outputBuffer   压缩1   原始 2
     if (bytelen > 0) {
+        LOGI("AudioChannel faacEncEncode bytelen : %d", bytelen);
         // 拼装packet  数据   NDK
         RTMPPacket *packet = new RTMPPacket;
         RTMPPacket_Alloc(packet, bytelen + 2);
@@ -62,6 +64,8 @@ void AudioChannel::encodeFrame(int32_t *data, int len) {
         packet->m_nChannel = 0x11;
         packet->m_headerType = RTMP_PACKET_SIZE_LARGE;
 
+        LOGI("AudioChannel encodeFrame callback : %p", callback);
+
         if (this->callback) {
             this->callback(packet);
         }
@@ -71,6 +75,9 @@ void AudioChannel::encodeFrame(int32_t *data, int len) {
 }
 
 RTMPPacket *AudioChannel::getAudioConfig() {
+
+    LOGI("AudioChannel getAudioConfig codec : %p", codec);
+
     // 视频帧的sps pps
     u_char *buf;
     u_long len;

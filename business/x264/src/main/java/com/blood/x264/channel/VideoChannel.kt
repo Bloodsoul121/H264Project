@@ -1,5 +1,7 @@
 package com.blood.x264.channel
 
+import android.os.Handler
+import android.os.HandlerThread
 import android.util.Log
 import com.blood.common.util.YuvUtil
 import com.blood.x264.push.LivePusher
@@ -21,6 +23,14 @@ class VideoChannel(
     private var nv21_rotated: ByteArray = ByteArray(0)
     private var nv12: ByteArray = ByteArray(0)
 
+    private var handlerThread: HandlerThread? = null
+    private var handler: Handler? = null
+
+    init {
+        handlerThread = HandlerThread("VideoChannel").apply { start() }
+        handler = Handler(handlerThread!!.looper)
+    }
+
     fun startLive() {
         isRunning = true
     }
@@ -35,7 +45,7 @@ class VideoChannel(
     }
 
     fun analyzeFrameData(y: ByteArray, u: ByteArray, v: ByteArray, width: Int, height: Int, rowStride: Int) {
-        analyze(y, u, v, width, height, rowStride)
+        handler?.post { analyze(y, u, v, width, height, rowStride) }
     }
 
     private fun analyze(y: ByteArray, u: ByteArray, v: ByteArray, width: Int, height: Int, rowStride: Int) {
@@ -44,6 +54,7 @@ class VideoChannel(
                 isFirstInit = false
                 // 配置真实宽高，以最终传到编码器的为准
                 livePusher.nativeInitVideoCodec(height, width, fps, bitrate)
+                Log.i(TAG, "analyze: $height $width")
             }
             if (nv21.isEmpty()) {
                 Log.i(TAG, "analyze: init nv21")

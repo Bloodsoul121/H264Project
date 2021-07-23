@@ -178,6 +178,8 @@ void VideoChannel::sendSpsPps(uint8_t *sps, uint8_t *pps, int sps_len, int pps_l
     if (this->callback) {
         this->callback(packet);
     }
+
+    LOGI("sendSpsPps");
 }
 
 void VideoChannel::sendFrame(int type, int payload, uint8_t *p_payload) {
@@ -226,6 +228,8 @@ void VideoChannel::sendFrame(int type, int payload, uint8_t *p_payload) {
     if (this->callback) {
         this->callback(packet);
     }
+
+    LOGI("sendFrame");
 }
 
 void VideoChannel::setVideoCallback(VideoChannel::VideoCallback callback) {
