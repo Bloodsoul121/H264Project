@@ -1,7 +1,7 @@
 #include <malloc.h>
 #include <cstring>
 #include "AudioChannel.h"
-#include "util/logutil.h"
+#include "logutil.h"
 
 AudioChannel::AudioChannel() {
 

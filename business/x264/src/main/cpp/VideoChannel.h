@@ -5,7 +5,7 @@
 #include <jni.h>
 #include <x264.h>
 #include "librtmp/rtmp.h"
-#include "callback/JavaCallHelper.h"
+#include "JavaCallHelper.h"
 
 class VideoChannel {
 

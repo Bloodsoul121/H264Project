@@ -10,6 +10,7 @@ file(GLOB cpp_source *.cpp util/*.cpp callback/*.cpp)
 include_directories(${CMAKE_SOURCE_DIR}/x264/${ANDROID_ABI}/include)
 include_directories(${CMAKE_SOURCE_DIR}/faac/${ANDROID_ABI}/include)
 include_directories(${CMAKE_SOURCE_DIR}/util)
+include_directories(${CMAKE_SOURCE_DIR}/callback)
 
 #静态库 FFmpeg
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -L${CMAKE_SOURCE_DIR}/x264/${ANDROID_ABI}/lib")

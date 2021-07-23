@@ -1,5 +1,5 @@
 #include "VideoChannel.h"
-#include "util/logutil.h"
+#include "logutil.h"
 #include <cstring>
 
 VideoChannel::VideoChannel() {
