@@ -14,7 +14,7 @@
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/core/common" />
             <option value="$PROJECT_DIR$/high" />
-            <option value="$PROJECT_DIR$/high/opengl" />
+            <option value="$PROJECT_DIR$/high/filter" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
