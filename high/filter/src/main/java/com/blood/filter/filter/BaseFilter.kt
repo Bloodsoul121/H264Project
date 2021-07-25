@@ -75,13 +75,13 @@ abstract class BaseFilter(context: Context, vertexShaderId: Int, fragmentShaderI
         this.textureMatrix = mtx
     }
 
-    fun onSizeChanged(width: Int, height: Int) {
+    open fun onSizeChanged(width: Int, height: Int) {
         this.width = width
         this.height = height
     }
 
-    // 开始渲染
-    fun onDraw(texture: Int): Int {
+    // 开始渲染，如果没有绑定fbo，则默认渲染到GLSurfaceView中，即屏幕上
+    open fun onDraw(texture: Int): Int {
         GLES20.glViewport(0, 0, width, height)
         GLES20.glUseProgram(program)
 
@@ -124,6 +124,6 @@ abstract class BaseFilter(context: Context, vertexShaderId: Int, fragmentShaderI
         GLES20.glDeleteProgram(program)
     }
 
-    abstract fun beforeDraw()
+    open fun beforeDraw() {}
 
 }

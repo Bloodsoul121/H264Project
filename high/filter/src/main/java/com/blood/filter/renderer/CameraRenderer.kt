@@ -3,19 +3,20 @@ package com.blood.filter.renderer
 import android.content.Context
 import android.graphics.SurfaceTexture
 import android.graphics.SurfaceTexture.OnFrameAvailableListener
+import android.opengl.EGL14
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
-import android.util.Log
 import androidx.camera.core.Preview.OnPreviewOutputUpdateListener
 import androidx.camera.core.Preview.PreviewOutput
 import androidx.lifecycle.LifecycleOwner
 import com.blankj.utilcode.util.BarUtils
 import com.blankj.utilcode.util.ScreenUtils
+import com.blood.common.util.FileUtil
 import com.blood.filter.bean.FilterConfig
 import com.blood.filter.helper.CameraXHelper
+import com.blood.filter.record.MediaRecorder
 import com.blood.filter.util.LogUtil.log
-import com.blood.filter.util.ToastUtil
 import com.blood.filter.view.CameraView
 import java.io.File
 import java.util.*
@@ -47,8 +48,9 @@ class CameraRenderer(private val cameraView: CameraView) : GLSurfaceView.Rendere
     private val vertexMatrix = FloatArray(16) // 顶点矩阵
     private val textureMatrix = FloatArray(16) // 纹理矩阵
 
-    //    private MediaRecorder mMediaRecorder;
+    private var mediaRecorder: MediaRecorder? = null
     //    private H264MediaRecorder mH264MediaRecorder;
+
     private var isOutput = false
 
     init {
@@ -82,21 +84,19 @@ class CameraRenderer(private val cameraView: CameraView) : GLSurfaceView.Rendere
 //        filters.add(FilterConfig(context, FilterConfig.FILTER_BEAUTY, true))
 //        filters.add(FilterConfig(context, FilterConfig.FILTER_SPLIT2, mIsSplit2FilterOpen))
 //        filters.add(FilterConfig(context, FilterConfig.FILTER_SOUL, mIsSoulFilterOpen))
-//        filters.add(FilterConfig(context, FilterConfig.FILTER_SCREEN, true))
+        filters.add(FilterConfig(context, FilterConfig.FILTER_SCREEN, true))
     }
 
     private fun initMediaRecorder() {
-        //录制每一帧数据
-        val saveFile = File(context.filesDir, SAVE_FILE_NAME)
-        val savePath = saveFile.absolutePath
-        if (saveFile.exists()) {
-            val delete = saveFile.delete()
-            if (delete) {
-                ToastUtil.toast("删除原有文件 $savePath")
-            }
-        }
+        // 删除原有录制文件
+        val saveFilePath = File(context.filesDir, SAVE_FILE_NAME).absolutePath
+        FileUtil.deleteFile(saveFilePath)
 
-//        mMediaRecorder = new MediaRecorder(mContext, savePath, EGL14.eglGetCurrentContext(), 480, 640);
+        // 录制数据
+        val eglContext = EGL14.eglGetCurrentContext()
+        val width = cameraHeight //480 1200
+        val height = cameraWidth //640 1600
+        mediaRecorder = MediaRecorder(context, saveFilePath, eglContext, width, height)
 
 //        mH264MediaRecorder = new H264MediaRecorder(mContext, savePath, EGL14.eglGetCurrentContext(), 480, 640);
     }
@@ -142,31 +142,22 @@ class CameraRenderer(private val cameraView: CameraView) : GLSurfaceView.Rendere
         // 这里不是数据，获取图像数据矩阵，传值给 matrix，16个元素数组
 //        surfaceTexture!!.getTransformMatrix(textureMatrix)
 
-//        // 返回fbo所在的图层，还没显示到屏幕上
-//        int texture = mCameraFilter.onDraw(mTextures[0]);
-//
-//        // 显示到屏幕上
-//        texture = mRecordFilter.onDraw(texture);
-
         var texture = textures[0]
         filters.forEach { filter ->
             filter.filter?.onVertexMatrix(vertexMatrix)
             filter.filter?.onTextureMatrix(textureMatrix)
             texture = filter.onDraw(texture)
-            Log.i(TAG, "onDrawFrame texture: $texture")
         }
-        Log.i(TAG, "onDrawFrame: end")
 
         // 录制，还是fbo的图层，主动调用opengl方法，必须是在egl环境下，即glthread
 //        if (mIsOutH264) {
 //            if (mH264MediaRecorder != null) {
 //                mH264MediaRecorder.fireFrame(texture, mCameraTexture.getTimestamp());
 //            }
-//        } else {
-//            if (mMediaRecorder != null) {
-//                mMediaRecorder.fireFrame(texture, mCameraTexture.getTimestamp());
-//            }
 //        }
+
+        // 此时的 texture 是 fbo 层的 id
+        mediaRecorder?.recordFrame(texture, surfaceTexture!!.timestamp)
     }
 
     // 摄像头数据回调
@@ -181,6 +172,13 @@ class CameraRenderer(private val cameraView: CameraView) : GLSurfaceView.Rendere
         log("onUpdated bar height -> $statusBarHeight $navBarHeight")
         cameraWidth = size.width
         cameraHeight = size.height
+
+        /*
+        2021-07-25 22:14:55.992 I/LogUtil: >>> onUpdated PreviewOutput size -> 1600 1200
+        2021-07-25 22:14:55.993 I/LogUtil: >>> onUpdated screen -> 1080 2175
+        2021-07-25 22:14:55.994 I/LogUtil: >>> onUpdated real screen -> 1080 2400
+        2021-07-25 22:14:55.996 I/LogUtil: >>> onUpdated bar height -> 95 130
+        */
 
         // 摄像头预览到的数据 在这里
         surfaceTexture = output.surfaceTexture
@@ -203,17 +201,15 @@ class CameraRenderer(private val cameraView: CameraView) : GLSurfaceView.Rendere
     fun startRecord(speed: Float) {
 //        if (mIsOutH264) {
 //            mH264MediaRecorder.start(speed);
-//        } else {
-//            mMediaRecorder.start(speed);
 //        }
+        mediaRecorder?.start(speed)
     }
 
     fun stopRecord() {
 //        if (mIsOutH264) {
 //            mH264MediaRecorder.stop();
-//        } else {
-//            mMediaRecorder.stop();
 //        }
+        mediaRecorder?.stop()
     }
 
     fun toggleOutput(isOutput: Boolean) {

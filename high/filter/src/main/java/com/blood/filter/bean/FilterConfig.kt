@@ -4,6 +4,7 @@ import android.content.Context
 import com.blood.filter.filter.AdaptFilter
 import com.blood.filter.filter.BaseFilter
 import com.blood.filter.filter.DemoFilter
+import com.blood.filter.filter.ScreenFilter
 
 class FilterConfig(private val context: Context, val id: Int, private var isOpen: Boolean = false) {
 
@@ -36,6 +37,7 @@ class FilterConfig(private val context: Context, val id: Int, private var isOpen
         filter = when (id) {
             FILTER_DEMO -> DemoFilter(context)
             FILTER_ADAPT -> AdaptFilter(context)
+            FILTER_SCREEN -> ScreenFilter(context)
             else -> null
         }
     }
