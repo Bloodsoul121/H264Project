@@ -6,7 +6,7 @@ import com.blood.filter.filter.BaseFilter
 import com.blood.filter.filter.DemoFilter
 import com.blood.filter.filter.ScreenFilter
 
-class FilterConfig(private val context: Context, val id: Int, private var isOpen: Boolean = false) {
+class FilterConfig(private val context: Context, val id: Int, val title: String, private var isOpen: Boolean = false) {
 
     companion object {
         const val FILTER_DEMO = 0 //滤镜

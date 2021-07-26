@@ -48,4 +48,12 @@ class CameraView : GLSurfaceView {
         cameraRenderer.toggleOutput(isOutH264)
     }
 
+    fun toggle(id: Int) {
+        cameraRenderer.toggle(id)
+    }
+
+    fun toggle(id: Int, isOpen: Boolean) {
+        cameraRenderer.toggle(id, isOpen)
+    }
+
 }

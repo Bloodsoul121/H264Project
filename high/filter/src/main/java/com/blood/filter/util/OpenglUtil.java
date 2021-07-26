@@ -139,24 +139,5 @@ public class OpenglUtil {
         return program;
     }
 
-    public static void copyAssets2SdCard(Context context, String src, String dst) {
-        try {
-            File file = new File(dst);
-            if (!file.exists()) {
-                InputStream is = context.getAssets().open(src);
-                FileOutputStream fos = new FileOutputStream(file);
-                int len;
-                byte[] buffer = new byte[2048];
-                while ((len = is.read(buffer)) != -1) {
-                    fos.write(buffer, 0, len);
-                }
-                is.close();
-                fos.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
 }
 
