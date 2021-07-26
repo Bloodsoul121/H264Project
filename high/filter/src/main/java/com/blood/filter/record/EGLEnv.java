@@ -28,6 +28,7 @@ public class EGLEnv {
         mEglDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
 
         if (mEglDisplay == EGL14.EGL_NO_DISPLAY) {
+            // 初始化失败
             throw new RuntimeException("eglGetDisplay failed");
         }
 
@@ -44,7 +45,7 @@ public class EGLEnv {
                 EGL14.EGL_BLUE_SIZE, 8, //
                 EGL14.EGL_ALPHA_SIZE, 8,//
                 EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT, //opengl es 2.0
-                EGL14.EGL_NONE
+                EGL14.EGL_NONE // 代表参数结束
         };
 
         int[] numConfigs = new int[1];
@@ -73,7 +74,7 @@ public class EGLEnv {
         //创建EGLSurface
         int[] surface_attrib_list = {EGL14.EGL_NONE};
 
-        // 录屏推流
+        // 录屏推流，输入数据到 display 就相当于 输入到 surface
         mEglSurface = EGL14.eglCreateWindowSurface(mEglDisplay, mEglConfig, surface, surface_attrib_list, 0);
 
         if (mEglSurface == null) {
@@ -95,7 +96,7 @@ public class EGLEnv {
         mRecordFilter.onDraw(textureId);
         // 给帧缓冲   时间戳
         EGLExt.eglPresentationTimeANDROID(mEglDisplay, mEglSurface, timestamp);
-        //EGLSurface是双缓冲模式
+        // EGLSurface是双缓冲模式
         // 流程 繁琐
         EGL14.eglSwapBuffers(mEglDisplay, mEglSurface);
     }

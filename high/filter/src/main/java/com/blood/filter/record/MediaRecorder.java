@@ -27,8 +27,8 @@ public class MediaRecorder {
     private Handler mHandler;
     private boolean mIsStart;
     private EGLEnv mEglEnv;
-    private int mTrackid;
-    private long mLastTimeStamp;
+    private int trackId;
+    private long lastTimeStamp;
 
     public MediaRecorder(Context context, String path, EGLContext glContext, int width,
                          int height) {
@@ -90,6 +90,7 @@ public class MediaRecorder {
         handlerThread.start();
         mHandler = new Handler(handlerThread.getLooper());
         mHandler.post(() -> {
+            // 构建 opengl 环境
             mEglEnv = new EGLEnv(mContext, mGlContext, mSurface, mWidth, mHeight);
             mIsStart = true;
         });
@@ -113,13 +114,15 @@ public class MediaRecorder {
         });
     }
 
+    // 主动去拿取 opengl fbo 的数据
     public void recordFrame(int texture, long timestamp) {
         if (!mIsStart) {
             return;
         }
         mHandler.post(() -> {
+            // 将数据传入到 MediaCodec 提供的 surface 中
             mEglEnv.draw(texture, timestamp);
-            // 获取对应的数据
+            // 编码
             codec(false);
         });
     }
@@ -142,7 +145,7 @@ public class MediaRecorder {
             } else if (index == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                 //输出格式发生改变  第一次总会调用所以在这里开启混合器
                 MediaFormat newFormat = mMediaCodec.getOutputFormat();
-                mTrackid = mMediaMuxer.addTrack(newFormat);
+                trackId = mMediaMuxer.addTrack(newFormat);
                 mMediaMuxer.start();
             } else if (index == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
                 //可以忽略
@@ -150,10 +153,10 @@ public class MediaRecorder {
                 //调整时间戳
                 bufferInfo.presentationTimeUs = (long) (bufferInfo.presentationTimeUs / mSpeed);
                 //有时候会出现异常 ： timestampUs xxx < lastTimestampUs yyy for Video track
-                if (bufferInfo.presentationTimeUs <= mLastTimeStamp) {
-                    bufferInfo.presentationTimeUs = (long) (mLastTimeStamp + 1_000_000 / 25 / mSpeed);
+                if (bufferInfo.presentationTimeUs <= lastTimeStamp) {
+                    bufferInfo.presentationTimeUs = (long) (lastTimeStamp + 1_000_000 / 25 / mSpeed);
                 }
-                mLastTimeStamp = bufferInfo.presentationTimeUs;
+                lastTimeStamp = bufferInfo.presentationTimeUs;
 
                 //正常则 index 获得缓冲区下标
                 ByteBuffer encodedData = mMediaCodec.getOutputBuffer(index);
@@ -167,7 +170,7 @@ public class MediaRecorder {
                     //设置能读数据的总长度
                     encodedData.limit(bufferInfo.offset + bufferInfo.size);
                     //写出为mp4
-                    mMediaMuxer.writeSampleData(mTrackid, encodedData, bufferInfo);
+                    mMediaMuxer.writeSampleData(trackId, encodedData, bufferInfo);
                 }
                 // 释放这个缓冲区，后续可以存放新的编码后的数据啦
                 mMediaCodec.releaseOutputBuffer(index, false);
