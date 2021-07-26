@@ -44,6 +44,7 @@ class CameraRenderer(private val cameraView: CameraView) : GLSurfaceView.Rendere
 
     private val vertexMatrix = FloatArray(16) // 顶点矩阵
     private val textureMatrix = FloatArray(16) // 纹理矩阵
+    private val demoMatrix = FloatArray(16) // 纹理矩阵
 
     private var mediaRecorder: MediaRecorder? = null
     private var h264Recorder: H264MediaRecorder? = null
@@ -82,7 +83,7 @@ class CameraRenderer(private val cameraView: CameraView) : GLSurfaceView.Rendere
 //        filters.add(FilterConfig(context, FilterConfig.FILTER_WARM, true))
 //        filters.add(FilterConfig(context, FilterConfig.FILTER_BEAUTY, true))
 //        filters.add(FilterConfig(context, FilterConfig.FILTER_SPLIT2, mIsSplit2FilterOpen))
-//        filters.add(FilterConfig(context, FilterConfig.FILTER_SOUL, mIsSoulFilterOpen))
+        filters.add(FilterConfig(context, FilterConfig.FILTER_SOUL, "灵魂出窍", true))
         filters.add(FilterConfig(context, FilterConfig.FILTER_SCREEN, "渲染屏幕", true))
         filterViewModel.notifyFilters(filters)
     }
@@ -134,13 +135,17 @@ class CameraRenderer(private val cameraView: CameraView) : GLSurfaceView.Rendere
     override fun onDrawFrame(gl: GL10) {
         // 更新摄像头的数据，给到gpu的缓存了，不需要通过cpu传递
         surfaceTexture!!.updateTexImage()
-//        // 这里不是数据，获取图像数据矩阵，传值给 matrix，16个元素数组
-//        surfaceTexture!!.getTransformMatrix(textureMatrix)
+        // 这里不是数据，获取图像数据矩阵，传值给 matrix，16个元素数组
+        surfaceTexture!!.getTransformMatrix(demoMatrix)
 
         var texture = textures[0]
         filters.forEach { filter ->
+            if (filter.id == FilterConfig.FILTER_DEMO) {
+                filter.filter?.onTextureMatrix(demoMatrix)
+            } else {
+                filter.filter?.onTextureMatrix(textureMatrix)
+            }
             filter.filter?.onVertexMatrix(vertexMatrix)
-            filter.filter?.onTextureMatrix(textureMatrix)
             texture = filter.onDraw(texture)
         }
 

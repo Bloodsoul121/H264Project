@@ -15,5 +15,6 @@ void main(){
     gl_Position = vPosition;
     // 遍历的 for循环 性能比较低，所以这里是并发的
     // vMatrix * vCoord 是通过矩阵将 顶点坐标系 和 纹理坐标系 进行转换
+    // 个人觉得，是把 纹理坐标 转为 顶点坐标，然后片元着色器根据坐标，去原图采样颜色，输出
     aCoord = (vTextureMatrix * vCoord).xy;
 }

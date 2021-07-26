@@ -1,10 +1,7 @@
 package com.blood.filter.bean
 
 import android.content.Context
-import com.blood.filter.filter.AdaptFilter
-import com.blood.filter.filter.BaseFilter
-import com.blood.filter.filter.DemoFilter
-import com.blood.filter.filter.ScreenFilter
+import com.blood.filter.filter.*
 
 class FilterConfig(private val context: Context, val id: Int, val title: String, var isOpen: Boolean = false) {
 
@@ -37,6 +34,7 @@ class FilterConfig(private val context: Context, val id: Int, val title: String,
         filter = when (id) {
             FILTER_DEMO -> DemoFilter(context)
             FILTER_ADAPT -> AdaptFilter(context)
+            FILTER_SOUL -> SoulFilter(context)
             FILTER_SCREEN -> ScreenFilter(context)
             else -> null
         }

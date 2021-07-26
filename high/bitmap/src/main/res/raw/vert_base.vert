@@ -10,6 +10,5 @@ varying vec2 aCoord;
 void main(){
     //内置变量： 把坐标点赋值给gl_position 就Ok了。
     gl_Position = vPosition;
-    // 因为最初是世界坐标系，所以需要矩阵转换，然后生成 fbo 缓存，跟现在的纹理坐标系一致，不需要矩阵
     aCoord = vCoord;
 }
