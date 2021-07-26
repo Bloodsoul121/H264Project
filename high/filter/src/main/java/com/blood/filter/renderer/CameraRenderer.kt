@@ -78,12 +78,12 @@ class CameraRenderer(private val cameraView: CameraView) : GLSurfaceView.Rendere
 
     private fun initFilters() {
         filters.clear()
-//        filters.add(FilterConfig(context, FilterConfig.FILTER_DEMO, "测试", true))
-        filters.add(FilterConfig(context, FilterConfig.FILTER_ADAPT, "适配尺寸", true))
+        filters.add(FilterConfig(context, FilterConfig.FILTER_DEMO, "测试", true))
+//        filters.add(FilterConfig(context, FilterConfig.FILTER_ADAPT, "适配尺寸", true))
 //        filters.add(FilterConfig(context, FilterConfig.FILTER_WARM, true))
 //        filters.add(FilterConfig(context, FilterConfig.FILTER_BEAUTY, true))
 //        filters.add(FilterConfig(context, FilterConfig.FILTER_SPLIT2, mIsSplit2FilterOpen))
-        filters.add(FilterConfig(context, FilterConfig.FILTER_SOUL, "灵魂出窍", true))
+//        filters.add(FilterConfig(context, FilterConfig.FILTER_SOUL, "灵魂出窍", true))
         filters.add(FilterConfig(context, FilterConfig.FILTER_SCREEN, "渲染屏幕", true))
         filterViewModel.notifyFilters(filters)
     }
