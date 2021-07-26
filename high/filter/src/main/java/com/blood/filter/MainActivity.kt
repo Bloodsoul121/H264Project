@@ -14,6 +14,7 @@ class MainActivity : BasePermissionActivity(), BindingCallback<FilterConfig>, Ra
     private lateinit var binding: ActivityMainBinding
 
     private var isRecord = false
+    private var isOutputH264 = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,16 +24,25 @@ class MainActivity : BasePermissionActivity(), BindingCallback<FilterConfig>, Ra
 
     override fun process() {
         binding.rgSpeed.setOnCheckedChangeListener(this)
-        binding.btnFilter.setOnClickListener { FilterDialog.newInstance(this).show(supportFragmentManager, "FilterDialog") }
+
+        binding.btnFilter.setOnClickListener {
+            FilterDialog.newInstance(this).show(supportFragmentManager, "FilterDialog")
+        }
+
+        binding.btnH264.setOnClickListener {
+            isOutputH264 = !isOutputH264
+            binding.cameraView.toggleOutH264(isOutputH264)
+            binding.btnH264.text = if (isOutputH264) "H264" else "MP4"
+        }
+
         binding.btnRecord.setOnClickListener {
             isRecord = !isRecord
             if (isRecord) {
                 binding.cameraView.startRecord()
-                binding.btnRecord.text = "停止录制"
             } else {
                 binding.cameraView.stopRecord()
-                binding.btnRecord.text = "开始录制"
             }
+            binding.btnRecord.text = if (isRecord) "停止录制" else "开始录制"
         }
     }
 

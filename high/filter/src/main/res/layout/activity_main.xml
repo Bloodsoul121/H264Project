@@ -32,8 +32,15 @@
                 android:text="滤镜" />
 
             <Button
+                android:id="@+id/btn_h264"
+                style="@style/style_button"
+                android:layout_marginStart="10dp"
+                android:text="MP4" />
+
+            <Button
                 android:id="@+id/btn_record"
                 style="@style/style_button"
+                android:layout_marginStart="10dp"
                 android:text="录制" />
 
         </LinearLayout>

@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.view.Surface;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -30,10 +31,9 @@ public class MediaRecorder {
     private int trackId;
     private long lastTimeStamp;
 
-    public MediaRecorder(Context context, String path, EGLContext glContext, int width,
-                         int height) {
+    public MediaRecorder(Context context, EGLContext glContext, int width, int height) {
         mContext = context.getApplicationContext();
-        mPath = path;
+        mPath = new File(context.getFilesDir(), "record.mp4").getAbsolutePath();
         mWidth = width;
         mHeight = height;
         mGlContext = glContext;

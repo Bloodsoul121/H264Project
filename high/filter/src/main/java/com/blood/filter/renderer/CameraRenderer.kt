@@ -14,14 +14,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import com.blankj.utilcode.util.BarUtils
 import com.blankj.utilcode.util.ScreenUtils
-import com.blood.common.util.FileUtil
 import com.blood.filter.bean.FilterConfig
 import com.blood.filter.helper.CameraXHelper
+import com.blood.filter.record.H264MediaRecorder
 import com.blood.filter.record.MediaRecorder
 import com.blood.filter.util.LogUtil.log
 import com.blood.filter.view.CameraView
 import com.blood.filter.viewmodel.FilterViewModel
-import java.io.File
 import java.util.*
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -30,11 +29,6 @@ import javax.microedition.khronos.opengles.GL10
  * 预览拉伸的问题，应该是本身图片撑不满全屏，然后渲染全屏后拉伸
  */
 class CameraRenderer(private val cameraView: CameraView) : GLSurfaceView.Renderer, OnPreviewOutputUpdateListener, OnFrameAvailableListener {
-
-    companion object {
-        private const val TAG = "CameraRenderer"
-        private const val SAVE_FILE_NAME = "record.mp4"
-    }
 
     private var screenWidth = 0
     private var screenHeight = 0
@@ -52,9 +46,9 @@ class CameraRenderer(private val cameraView: CameraView) : GLSurfaceView.Rendere
     private val textureMatrix = FloatArray(16) // 纹理矩阵
 
     private var mediaRecorder: MediaRecorder? = null
-    //    private H264MediaRecorder mH264MediaRecorder;
+    private var h264Recorder: H264MediaRecorder? = null
 
-    private var isOutput = false
+    private var isH264 = false
 
     private var filterViewModel = ViewModelProvider(context as ViewModelStoreOwner)[FilterViewModel::class.java]
 
@@ -93,18 +87,13 @@ class CameraRenderer(private val cameraView: CameraView) : GLSurfaceView.Rendere
         filterViewModel.notifyFilters(filters)
     }
 
+    // 录制数据
     private fun initMediaRecorder() {
-        // 删除原有录制文件
-        val saveFilePath = File(context.filesDir, SAVE_FILE_NAME).absolutePath
-        FileUtil.deleteFile(saveFilePath)
-
-        // 录制数据
         val eglContext = EGL14.eglGetCurrentContext()
         val width = cameraHeight //480 1200
         val height = cameraWidth //640 1600
-        mediaRecorder = MediaRecorder(context, saveFilePath, eglContext, width, height)
-
-//        mH264MediaRecorder = new H264MediaRecorder(mContext, savePath, EGL14.eglGetCurrentContext(), 480, 640);
+        mediaRecorder = MediaRecorder(context, eglContext, width, height)
+        h264Recorder = H264MediaRecorder(context, eglContext, width, height)
     }
 
     /**
@@ -145,7 +134,7 @@ class CameraRenderer(private val cameraView: CameraView) : GLSurfaceView.Rendere
     override fun onDrawFrame(gl: GL10) {
         // 更新摄像头的数据，给到gpu的缓存了，不需要通过cpu传递
         surfaceTexture!!.updateTexImage()
-        // 这里不是数据，获取图像数据矩阵，传值给 matrix，16个元素数组
+//        // 这里不是数据，获取图像数据矩阵，传值给 matrix，16个元素数组
 //        surfaceTexture!!.getTransformMatrix(textureMatrix)
 
         var texture = textures[0]
@@ -156,14 +145,12 @@ class CameraRenderer(private val cameraView: CameraView) : GLSurfaceView.Rendere
         }
 
         // 录制，还是fbo的图层，主动调用opengl方法，必须是在egl环境下，即glthread
-//        if (mIsOutH264) {
-//            if (mH264MediaRecorder != null) {
-//                mH264MediaRecorder.fireFrame(texture, mCameraTexture.getTimestamp());
-//            }
-//        }
-
         // 此时的 texture 是 fbo 层的 id
-        mediaRecorder?.recordFrame(texture, surfaceTexture!!.timestamp)
+        if (isH264) {
+            h264Recorder?.recordFrame(texture, surfaceTexture!!.timestamp)
+        } else {
+            mediaRecorder?.recordFrame(texture, surfaceTexture!!.timestamp)
+        }
     }
 
     // 摄像头数据回调
@@ -205,21 +192,23 @@ class CameraRenderer(private val cameraView: CameraView) : GLSurfaceView.Rendere
     }
 
     fun startRecord(speed: Float) {
-//        if (mIsOutH264) {
-//            mH264MediaRecorder.start(speed);
-//        }
-        mediaRecorder?.start(speed)
+        if (isH264) {
+            h264Recorder?.start(speed)
+        } else {
+            mediaRecorder?.start(speed)
+        }
     }
 
     fun stopRecord() {
-//        if (mIsOutH264) {
-//            mH264MediaRecorder.stop();
-//        }
-        mediaRecorder?.stop()
+        if (isH264) {
+            h264Recorder?.stop()
+        } else {
+            mediaRecorder?.stop()
+        }
     }
 
-    fun toggleOutput(isOutput: Boolean) {
-        this.isOutput = isOutput
+    fun toggleOutput(isOutH264: Boolean) {
+        this.isH264 = isOutH264
     }
 
     fun toggle(id: Int) {
