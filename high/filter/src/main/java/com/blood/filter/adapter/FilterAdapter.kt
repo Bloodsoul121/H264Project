@@ -27,6 +27,7 @@ class FilterAdapter(private val callback: BindingCallback<FilterConfig>) : Recyc
     }
 
     override fun onBindViewHolder(holder: BindingViewHolder<LayoutItemFilterBinding>, position: Int) {
+        holder.binding.text.isSelected = list[position].isOpen
         holder.binding.text.text = list[position].title
         holder.binding.root.tag = list[position]
         holder.binding.root.setOnClickListener(this)

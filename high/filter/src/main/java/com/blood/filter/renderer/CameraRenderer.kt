@@ -10,6 +10,8 @@ import android.opengl.Matrix
 import androidx.camera.core.Preview.OnPreviewOutputUpdateListener
 import androidx.camera.core.Preview.PreviewOutput
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import com.blankj.utilcode.util.BarUtils
 import com.blankj.utilcode.util.ScreenUtils
 import com.blood.common.util.FileUtil
@@ -18,6 +20,7 @@ import com.blood.filter.helper.CameraXHelper
 import com.blood.filter.record.MediaRecorder
 import com.blood.filter.util.LogUtil.log
 import com.blood.filter.view.CameraView
+import com.blood.filter.viewmodel.FilterViewModel
 import java.io.File
 import java.util.*
 import javax.microedition.khronos.egl.EGLConfig
@@ -53,11 +56,12 @@ class CameraRenderer(private val cameraView: CameraView) : GLSurfaceView.Rendere
 
     private var isOutput = false
 
+    private var filterViewModel = ViewModelProvider(context as ViewModelStoreOwner)[FilterViewModel::class.java]
+
     init {
         cameraXHelper = CameraXHelper(context as LifecycleOwner, this)
         cameraXHelper.openCamera()
     }
-
 
     /**
      * 创建GLSurfaceView时，系统调用一次该方法。使用此方法执行只需要执行一次的操作，例如设置OpenGL环境参数或初始化OpenGL图形对象。
@@ -79,13 +83,14 @@ class CameraRenderer(private val cameraView: CameraView) : GLSurfaceView.Rendere
 
     private fun initFilters() {
         filters.clear()
-        filters.add(FilterConfig(context, FilterConfig.FILTER_DEMO, "测试", true))
+//        filters.add(FilterConfig(context, FilterConfig.FILTER_DEMO, "测试", true))
         filters.add(FilterConfig(context, FilterConfig.FILTER_ADAPT, "适配尺寸", true))
 //        filters.add(FilterConfig(context, FilterConfig.FILTER_WARM, true))
 //        filters.add(FilterConfig(context, FilterConfig.FILTER_BEAUTY, true))
 //        filters.add(FilterConfig(context, FilterConfig.FILTER_SPLIT2, mIsSplit2FilterOpen))
 //        filters.add(FilterConfig(context, FilterConfig.FILTER_SOUL, mIsSoulFilterOpen))
         filters.add(FilterConfig(context, FilterConfig.FILTER_SCREEN, "渲染屏幕", true))
+        filterViewModel.notifyFilters(filters)
     }
 
     private fun initMediaRecorder() {
@@ -223,6 +228,7 @@ class CameraRenderer(private val cameraView: CameraView) : GLSurfaceView.Rendere
             for (filterConfig in filters) {
                 if (filterConfig.id == id) {
                     filterConfig.toggle()
+                    filterViewModel.notifyFilters(filters)
                     return@queueEvent
                 }
             }
@@ -235,6 +241,7 @@ class CameraRenderer(private val cameraView: CameraView) : GLSurfaceView.Rendere
             for (filterConfig in filters) {
                 if (filterConfig.id == id) {
                     filterConfig.toggle(isOpen)
+                    filterViewModel.notifyFilters(filters)
                     return@queueEvent
                 }
             }

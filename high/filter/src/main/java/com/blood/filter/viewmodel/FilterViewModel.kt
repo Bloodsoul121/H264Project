@@ -8,4 +8,8 @@ class FilterViewModel : ViewModel() {
 
     val onNotifyFilters = MutableLiveData<List<FilterConfig>>()
 
+    fun notifyFilters(filters: List<FilterConfig>) {
+        onNotifyFilters.postValue(filters)
+    }
+
 }
