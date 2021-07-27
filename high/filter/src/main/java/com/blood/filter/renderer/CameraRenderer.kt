@@ -10,10 +10,10 @@ import android.opengl.Matrix
 import androidx.camera.core.Preview.OnPreviewOutputUpdateListener
 import androidx.camera.core.Preview.PreviewOutput
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import com.blankj.utilcode.util.BarUtils
 import com.blankj.utilcode.util.ScreenUtils
+import com.blood.common.viewModels
 import com.blood.filter.bean.FilterConfig
 import com.blood.filter.helper.CameraXHelper
 import com.blood.filter.record.H264MediaRecorder
@@ -51,7 +51,7 @@ class CameraRenderer(private val cameraView: CameraView) : GLSurfaceView.Rendere
 
     private var isH264 = false
 
-    private var filterViewModel = ViewModelProvider(context as ViewModelStoreOwner)[FilterViewModel::class.java]
+    private val filterViewModel: FilterViewModel by viewModels(context as ViewModelStoreOwner)
 
     init {
         cameraXHelper = CameraXHelper(context as LifecycleOwner, this)
