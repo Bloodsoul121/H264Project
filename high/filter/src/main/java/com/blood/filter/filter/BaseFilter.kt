@@ -17,6 +17,9 @@ abstract class BaseFilter(context: Context, vertexShaderId: Int, fragmentShaderI
             1.0f, 1.0f
     )
 
+    // 这个对应是上下反着的呀？
+    // 解：因为开启的是后置摄像头，图片会颠倒
+
     // 纹理坐标
     private var TEXTURE = floatArrayOf(
             0.0f, 0.0f,
