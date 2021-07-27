@@ -1,4 +1,4 @@
-package com.blood.common
+package com.blood.common.ext
 
 import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModel

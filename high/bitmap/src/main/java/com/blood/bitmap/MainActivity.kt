@@ -1,5 +1,6 @@
 package com.blood.bitmap
 
+import android.graphics.BitmapFactory
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.os.Bundle
@@ -12,6 +13,7 @@ class MainActivity : AppCompatActivity(), GLSurfaceView.Renderer {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var imageFilter: ImageFilter
+    private var textureId: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,7 +35,9 @@ class MainActivity : AppCompatActivity(), GLSurfaceView.Renderer {
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         GLES20.glClearColor(0f, 0f, 0f, 0f)
+        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.demo)
         imageFilter = ImageFilter(this, R.raw.vert_base, R.raw.frag_base)
+        textureId = imageFilter.initTexture(bitmap)
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
@@ -41,7 +45,7 @@ class MainActivity : AppCompatActivity(), GLSurfaceView.Renderer {
     }
 
     override fun onDrawFrame(gl: GL10?) {
-        imageFilter.onDraw(0)
+        imageFilter.onDraw(textureId)
     }
 
 }

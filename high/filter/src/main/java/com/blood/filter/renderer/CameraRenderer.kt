@@ -13,7 +13,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStoreOwner
 import com.blankj.utilcode.util.BarUtils
 import com.blankj.utilcode.util.ScreenUtils
-import com.blood.common.viewModels
+import com.blood.common.ext.viewModels
 import com.blood.filter.bean.FilterConfig
 import com.blood.filter.helper.CameraXHelper
 import com.blood.filter.record.H264MediaRecorder
