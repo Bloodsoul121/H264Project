@@ -13,6 +13,7 @@ class FilterConfig(private val context: Context, val id: Int, val title: String,
         const val FILTER_SOUL = 4 //灵魂出窍
         const val FILTER_SCREEN = 5 //将数据渲染到屏幕
         const val FILTER_BEAUTY = 6 //美颜
+        const val FILTER_SPLIT3 = 7 //分屏3个
     }
 
     var filter: BaseFilter? = null
@@ -34,8 +35,12 @@ class FilterConfig(private val context: Context, val id: Int, val title: String,
         filter = when (id) {
             FILTER_DEMO -> DemoFilter(context)
             FILTER_ADAPT -> AdaptFilter(context)
+            FILTER_WARM -> WarmFilter(context)
+            FILTER_SPLIT2 -> Split2Filter(context)
+            FILTER_SPLIT3 -> Split3Filter(context)
             FILTER_SOUL -> SoulFilter(context)
             FILTER_SCREEN -> ScreenFilter(context)
+            FILTER_BEAUTY -> null
             else -> null
         }
     }

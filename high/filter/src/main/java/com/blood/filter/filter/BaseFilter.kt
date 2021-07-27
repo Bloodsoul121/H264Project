@@ -109,7 +109,7 @@ abstract class BaseFilter(context: Context, vertexShaderId: Int, fragmentShaderI
 
         // 激活使用某个图层
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
-        // 根据缓冲区生成一个采样器（2D）
+        // 绑定，原子操作，根据缓冲区生成一个采样器（2D）
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture)
         // 第0个图层，赋值给mVTexture
         GLES20.glUniform1i(vTexture, 0)
@@ -119,6 +119,9 @@ abstract class BaseFilter(context: Context, vertexShaderId: Int, fragmentShaderI
 
         // 通知画画
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
+
+        // 解锁
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0)
 
         return texture
     }
