@@ -76,14 +76,15 @@ class CameraRenderer(private val cameraView: CameraView) : GLSurfaceView.Rendere
         initMediaRecorder()
     }
 
+    // 需要 fbo 层作为缓冲区，否则图像就直接渲染到屏幕上了
     private fun initFilters() {
         filters.clear()
-        filters.add(FilterConfig(context, FilterConfig.FILTER_DEMO, "测试", true))
-//        filters.add(FilterConfig(context, FilterConfig.FILTER_ADAPT, "适配尺寸", true))
+//        filters.add(FilterConfig(context, FilterConfig.FILTER_DEMO, "测试", true))
+        filters.add(FilterConfig(context, FilterConfig.FILTER_ADAPT, "适配尺寸", true))
 //        filters.add(FilterConfig(context, FilterConfig.FILTER_WARM, true))
 //        filters.add(FilterConfig(context, FilterConfig.FILTER_BEAUTY, true))
 //        filters.add(FilterConfig(context, FilterConfig.FILTER_SPLIT2, mIsSplit2FilterOpen))
-//        filters.add(FilterConfig(context, FilterConfig.FILTER_SOUL, "灵魂出窍", true))
+        filters.add(FilterConfig(context, FilterConfig.FILTER_SOUL, "灵魂出窍", true))
         filters.add(FilterConfig(context, FilterConfig.FILTER_SCREEN, "渲染屏幕", true))
         filterViewModel.notifyFilters(filters)
     }
@@ -140,12 +141,16 @@ class CameraRenderer(private val cameraView: CameraView) : GLSurfaceView.Rendere
 
         var texture = textures[0]
         filters.forEach { filter ->
-            if (filter.id == FilterConfig.FILTER_DEMO) {
-                filter.filter?.onTextureMatrix(demoMatrix)
-            } else {
-                filter.filter?.onTextureMatrix(textureMatrix)
+            // 最初照相机捕获的图像需要矩阵变换，后续就以fbo的纹理缓存进行操作
+            when (filter.id) {
+                FilterConfig.FILTER_DEMO -> {
+                    filter.filter?.onTextureMatrix(demoMatrix)
+                }
+                FilterConfig.FILTER_ADAPT -> {
+                    filter.filter?.onVertexMatrix(vertexMatrix)
+                    filter.filter?.onTextureMatrix(textureMatrix)
+                }
             }
-            filter.filter?.onVertexMatrix(vertexMatrix)
             texture = filter.onDraw(texture)
         }
 
