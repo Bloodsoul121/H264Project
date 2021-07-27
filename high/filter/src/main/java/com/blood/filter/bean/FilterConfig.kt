@@ -6,14 +6,19 @@ import com.blood.filter.filter.*
 class FilterConfig(private val context: Context, val id: Int, val title: String, var isOpen: Boolean = false) {
 
     companion object {
-        const val FILTER_DEMO = 0 //滤镜
-        const val FILTER_ADAPT = 1 //滤镜，适配尺寸大小
-        const val FILTER_WARM = 2 //暖色滤镜
-        const val FILTER_SPLIT2 = 3 //分屏2个
-        const val FILTER_SOUL = 4 //灵魂出窍
-        const val FILTER_SCREEN = 5 //将数据渲染到屏幕
-        const val FILTER_BEAUTY = 6 //美颜
-        const val FILTER_SPLIT3 = 7 //分屏3个
+        private var id = 0
+        private fun genId() = id++
+
+        val FILTER_DEMO = genId() //滤镜
+        val FILTER_ADAPT = genId() //滤镜，适配尺寸大小
+        val FILTER_WARM = genId() //暖色滤镜
+        val FILTER_SPLIT2 = genId() //分屏2个
+        val FILTER_SPLIT3 = genId() //分屏3个
+        val FILTER_SOUL = genId() //灵魂出窍
+        val FILTER_SCREEN = genId() //将数据渲染到屏幕
+        val FILTER_BEAUTY1 = genId() //美颜1
+        val FILTER_BEAUTY2 = genId() //美颜2
+        val FILTER_BEAUTY3 = genId() //美颜3
     }
 
     var filter: BaseFilter? = null
@@ -40,7 +45,9 @@ class FilterConfig(private val context: Context, val id: Int, val title: String,
             FILTER_SPLIT3 -> Split3Filter(context)
             FILTER_SOUL -> SoulFilter(context)
             FILTER_SCREEN -> ScreenFilter(context)
-            FILTER_BEAUTY -> null
+            FILTER_BEAUTY1 -> Beauty1Filter(context)
+            FILTER_BEAUTY2 -> Beauty2Filter(context)
+            FILTER_BEAUTY3 -> Beauty3Filter(context)
             else -> null
         }
     }

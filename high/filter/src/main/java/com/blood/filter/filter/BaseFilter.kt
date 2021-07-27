@@ -28,8 +28,8 @@ abstract class BaseFilter(context: Context, vertexShaderId: Int, fragmentShaderI
             1.0f, 1.0f
     )
 
-    private var width = 0
-    private var height = 0
+    protected var width = 0
+    protected var height = 0
 
     private val vertexBuffer: FloatBuffer
     private val textureBuffer: FloatBuffer

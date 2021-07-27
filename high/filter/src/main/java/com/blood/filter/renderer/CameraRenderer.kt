@@ -79,10 +79,12 @@ class CameraRenderer(private val cameraView: CameraView) : GLSurfaceView.Rendere
     // 需要 fbo 层作为缓冲区，否则图像就直接渲染到屏幕上了
     private fun initFilters() {
         filters.clear()
-//        filters.add(FilterConfig(context, FilterConfig.FILTER_DEMO, "测试", true))
+        filters.add(FilterConfig(context, FilterConfig.FILTER_DEMO, "测试", false))
         filters.add(FilterConfig(context, FilterConfig.FILTER_ADAPT, "适配尺寸", true))
         filters.add(FilterConfig(context, FilterConfig.FILTER_WARM, "暖色", false))
-        filters.add(FilterConfig(context, FilterConfig.FILTER_BEAUTY, "美颜", false))
+        filters.add(FilterConfig(context, FilterConfig.FILTER_BEAUTY1, "美颜1（高斯模糊）", false))
+        filters.add(FilterConfig(context, FilterConfig.FILTER_BEAUTY2, "美颜2（线条）", false))
+        filters.add(FilterConfig(context, FilterConfig.FILTER_BEAUTY3, "美颜3（磨皮）", false))
         filters.add(FilterConfig(context, FilterConfig.FILTER_SPLIT2, "分两屏", false))
         filters.add(FilterConfig(context, FilterConfig.FILTER_SPLIT3, "分三屏", false))
         filters.add(FilterConfig(context, FilterConfig.FILTER_SOUL, "灵魂出窍", false))
