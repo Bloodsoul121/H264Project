@@ -1,0 +1,31 @@
+apply from: "${rootProject.rootDir}/moduleDebug.gradle"
+apply from: "${rootProject.rootDir}/config.gradle"
+
+android {
+
+    defaultConfig {
+
+        targetSdkVersion 28
+
+        externalNativeBuild {
+            cmake {
+                cppFlags ""
+                abiFilters 'arm64-v8a'
+                arguments "-DANDROID_STL=c++_shared" // 18以后去掉了，需要重新下一个
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+            version "3.10.2"
+        }
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['src/main/cpp/opencv/lib']
+        }
+    }
+}

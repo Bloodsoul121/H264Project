@@ -7,7 +7,7 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import com.blood.common.util.YuvUtil
 
-class Camera1Helper(val callback: Callback) : SurfaceHolder.Callback, Camera.PreviewCallback {
+class Camera1Helper(val callback: Callback? = null) : SurfaceHolder.Callback, Camera.PreviewCallback {
 
     companion object {
         const val TAG = "Camera1Helper"
@@ -57,7 +57,7 @@ class Camera1Helper(val callback: Callback) : SurfaceHolder.Callback, Camera.Pre
 
         nv21_rotated = ByteArray(buffer.size)
 
-        callback.onSize(previewSize.height, previewSize.width)
+        callback?.onSize(previewSize.height, previewSize.width)
 
         val focusModeList = parameters.supportedFocusModes
         for (focusMode in focusModeList) { //检查支持的对焦
@@ -76,7 +76,7 @@ class Camera1Helper(val callback: Callback) : SurfaceHolder.Callback, Camera.Pre
         data ?: return
         YuvUtil.nv21_rotate_to_90(data, nv21_rotated, previewSize.width, previewSize.height)
         nv12 = YuvUtil.nv21toNV12(nv21_rotated)
-        callback.onCaptureData(nv12, previewSize.height, previewSize.width)
+        callback?.onCaptureData(nv12, previewSize.height, previewSize.width)
         camera?.addCallbackBuffer(buffer)
     }
 

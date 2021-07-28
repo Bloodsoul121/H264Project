@@ -14,8 +14,7 @@
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/core/common" />
             <option value="$PROJECT_DIR$/high" />
-            <option value="$PROJECT_DIR$/high/bitmap" />
-            <option value="$PROJECT_DIR$/high/filter" />
+            <option value="$PROJECT_DIR$/high/opencv" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
