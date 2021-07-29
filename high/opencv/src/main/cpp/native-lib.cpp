@@ -80,7 +80,7 @@ Java_com_blood_opencv_MainActivity_opencvPostData(JNIEnv *env, jobject thiz, jby
     jbyte *data = env->GetByteArrayElements(data_, nullptr);
 
     // data 数据未知的数据 图像
-    // data nv21
+    // data nv21 yuv
 //    Mat * mat = new Mat(h + h / 2, w, CV_8UC1, data);
     Mat src(h + h / 2, w, CV_8UC1, data);
     //颜色格式的转换 nv21->RGBA
@@ -104,8 +104,8 @@ Java_com_blood_opencv_MainActivity_opencvPostData(JNIEnv *env, jobject thiz, jby
 
     // 输出图片
     const char *outPath = env->GetStringUTFChars(imagePath, nullptr);
-    char p[100];
     mkdir(outPath, 0777);
+    char p[100];
 //    sprintf(p, "%s/%d.jpg", outPath, index++);
 //    imwrite(p, src);
 
@@ -125,67 +125,76 @@ Java_com_blood_opencv_MainActivity_opencvPostData(JNIEnv *env, jobject thiz, jby
         m = gray(face).clone(); // 复制给m
         resize(m, m, Size(24, 24)); // 缩小图像，生成训练样本
 
-        sprintf(p, "%s/%d.jpg", outPath, index++);
-        LOGI("save %s", p);
+//        sprintf(p, "%s/%d.jpg", outPath, index++);
+//        imwrite(p, m);
+//        LOGI("save %s", p);
 
-        imwrite(p, m);
-
-//        原图
-//        Scalar *scalar = new Scalar(0, 0, 255);
-//        rectangle(src, face,*scalar);
-//        Scalar(0, 0, 255)
-//        rectangle(src, face, Scalar(0, 0, 255));
+        // 画一个框框
+        // src : 原图（整图）
+        // face : 捕获的图像
+        // scalar : 颜色
+        rectangle(src, face, Scalar(0, 0, 255));
     }
-/*//     话一个框框  释放
-//    数据画到SurfaceView
+
+    // 数据画到 SurfaceView
     if (window) {
-//        初始化了
-//        画面中   window  缓冲区 设置 大小
 
         do {
-//            if (!window) {
-//                break;
-//            }
-            ANativeWindow_setBuffersGeometry(window, src.cols, src.rows, WINDOW_FORMAT_RGBA_8888);
-//            缓冲区    得到
 
-            ANativeWindow_Buffer buffer;
-            if (ANativeWindow_lock(window, &buffer, 0)) {
-                ANativeWindow_release(window);
-                window = 0;
+            if (!window) {
+                break;
             }
-//            知道为什么*4   rgba
+
+            // 画面中 window  缓冲区 设置 大小
+            ANativeWindow_setBuffersGeometry(window, src.cols, src.rows, WINDOW_FORMAT_RGBA_8888);
+
+            // 得到缓冲区
+            ANativeWindow_Buffer buffer;
+            if (ANativeWindow_lock(window, &buffer, nullptr)) {
+                // 释放
+                ANativeWindow_release(window);
+                window = nullptr;
+            }
+
+            // 源数据，一行的字节数   知道为什么*4   rgba
             int srclineSize = src.cols * 4;
-//目的数据
+
+            // 目标缓存数据，一行的字节数
             int dstlineSize = buffer.stride * 4;
 
-//            待显示的缓冲区
-            uint8_t *dstData = static_cast<uint8_t *>(buffer.bits);
-//像素的数据源
-//            dstData 目的 内存    src   数据源
-//for循环行数   这个
+            // 待显示的缓冲区
+            auto *dstData = static_cast<uint8_t *>(buffer.bits);
+
+            // 像素的数据源
+            // src 数据源 -> dstData 目的 内存
+            // for循环，一行行拷贝，显示区域与源数据图像的宽高不一定相等
             for (int i = 0; i < buffer.height; ++i) {
                 memcpy(dstData + i * dstlineSize, src.data + i * srclineSize, srclineSize);
             }
+
+            // 释放
             ANativeWindow_unlockAndPost(window);
+
         } while (0);
-    }*/
+    }
+
     env->ReleaseByteArrayElements(data_, data, 0);
 }
 
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_blood_opencv_MainActivity_opencvSetSurface(JNIEnv *env, jobject thiz, jobject surface) {
-//    if (window) {
-//        ANativeWindow_release(window);
-//        window = nullptr;
-//    }
-//    // 渲染surface  --->window  --->windwo
-//    window = ANativeWindow_fromSurface(env, surface);
+    if (window) {
+        ANativeWindow_release(window);
+        window = nullptr;
+    }
+    // 渲染surface  --->window
+    // 传入 surface 转为 window
+    window = ANativeWindow_fromSurface(env, surface);
 }
 
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_blood_opencv_MainActivity_opencvRelease(JNIEnv *env, jobject thiz) {
-
+    env->DeleteGlobalRef(imagePath);
 }

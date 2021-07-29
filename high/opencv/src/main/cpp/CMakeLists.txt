@@ -25,4 +25,6 @@ target_link_libraries(
         native-lib
         ${log-lib}
         opencv_java4
+        jnigraphics
+        android
 )

@@ -7,6 +7,7 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import com.blood.common.base.BasePermissionActivity
 import com.blood.common.util.AssetsUtil
+import com.blood.common.util.FileUtil
 import com.blood.opencv.databinding.ActivityMainBinding
 import java.io.File
 
@@ -44,18 +45,24 @@ class MainActivity : BasePermissionActivity(), SurfaceHolder.Callback, Camera.Pr
         cameraHelper?.stopPreview()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        opencvRelease()
+    }
+
     override fun process() {
-        val file = File(filesDir, FRONTALFACE)
-        AssetsUtil.copyAssets(this, FRONTALFACE, file)
+        val model = File(filesDir, FRONTALFACE)
+        AssetsUtil.copyAssets(this, FRONTALFACE, model)
 
         binding.switchCamera.setOnClickListener { cameraHelper?.switchCamera() }
         binding.surfaceView.holder.addCallback(this)
         cameraHelper = CameraHelper(cameraId).apply { setPreviewCallback(this@MainActivity) }
 
         val outFile = File(filesDir, "recognition")
-        opencvInit(file.absolutePath, outFile.absolutePath)
-        Log.i(TAG, "process: ${file.absolutePath}")
-        Log.i(TAG, "process: ${outFile.absolutePath}")
+        FileUtil.deleteFile(outFile)
+        opencvInit(model.absolutePath, outFile.absolutePath)
+        Log.i(TAG, "process mode: ${model.absolutePath}")
+        Log.i(TAG, "process out: ${outFile.absolutePath}")
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
@@ -72,7 +79,7 @@ class MainActivity : BasePermissionActivity(), SurfaceHolder.Callback, Camera.Pr
         opencvPostData(data, CameraHelper.WIDTH, CameraHelper.HEIGHT, cameraId)
     }
 
-    external fun opencvInit(path: String, outPath: String)
+    external fun opencvInit(model: String, outPath: String)
     external fun opencvSetSurface(surface: Surface)
     external fun opencvPostData(bytes: ByteArray, w: Int, h: Int, cameraId: Int)
     external fun opencvRelease()
