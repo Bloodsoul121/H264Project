@@ -1,0 +1,63 @@
+#环境配置
+解压 opencv-3.x 版本
+添加到环境变量 path -> D:\opencv\opencv-3.4.13-vc14_vc15\opencv\build\x64\vc15\bin
+
+
+正样本：包含人脸的图片,灰度图。 正样本大小：统一大小并且不能小于负样本 负样本：不包含人脸的图片
+负样本大小：无所谓
+正、负样本个数比列大约为 1： 3
+
+#准备正样本目录 lance
+内容为100张大小为24x24的人脸
+假设目录结构如下：
+/lance
+0.jpg
+1.jpg
+
+#制作lance.data文件
+文件内容如下：
+#分别表示 1张人脸 ；人脸从 0,0坐标开始；大小为24x24
+lance/0.jpg 1 0 0 24 24
+#==================================================================
+#假设为2个人脸； 则数据为人脸分别为 100,200处的50x50 和 50,30处的25x25为人脸
+lance/1.jpg 2 100 200 50 50 50 30 25 25
+
+#生成正样本
+opencv_createsamples -info lance.data -vec lance.vec -num 100 -w 24 -h 24
+-info: 正样本描述
+-vec : 输出的正样本文件
+-num : 正样本数量
+-w -h: 输出样本的大小
+#输出：Done. Created 100 samples 表示成功生成100个样本
+
+#制作负样本 bg.data ，同上
+
+#新建输出文件夹 data 目录
+
+#训练
+opencv_traincascade -data data -vec lance.vec -bg bg.data -numPos 100 -numNeg 300 -numStages 15 -featureType LBP -w 24 -h 24
+-data ： 目录，需要手动创建，生成的结果 训练的模型会输出到这个目录
+-vec ： 正样本
+-bg ： 负样本
+-numPos ：每级分类器训练时所用到的正样本数目
+-numNeg ：每级分类器训练时所用到的负样本数目，可以大于-bg数目
+-numStages：训练分类器的级数，如果层数多，分类器的误差就更小，但是检测速度慢。(15-20)
+-featureType: LBP
+-w -h
+
+输出：
+Training until now has taken 0 days 0 hours 0 minutes 10 seconds.
+表示成功
+
+输出：
+Required leaf false alarm rate achieved. Branch training terminated.
+表示成功,但是误检率已经达标。(样本太少了，生成的模型质量不行)
+
+输出：
+Bad argument < Can not get new positive sample. The most possible reason is insufficient count of samples in given vec-file.
+则意味着错误。
+
+#参数：(未使用)
+minHitRate：分类器的每一级希望得到的最小检测率。当设置为0.995(默认)时，如果numPos个数为1000个，那么第一 级分类器其中的5个就很可能不被检测，第二级选择的时候必须多选择后面的5个，按照这种规律我们为后面的每级多增 加numPos*minHitRate，5个正样本.
+实际准备的正样本数量应该（读入vec的正样本数） >= numPos + (numStage - 1) * numPos * (1 - minHitRate) 按照此公式计算， numPos+14* numPos * 0.005 = 1.07*numPos ,也就是正样本数量要大于等于 1.07*numPos。 即：numPos：100，正样本数则为 107。
+而我们正样本是100，所以numPos应该传：100/1.07=93。

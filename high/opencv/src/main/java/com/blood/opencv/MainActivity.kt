@@ -1,17 +1,16 @@
 package com.blood.opencv
 
 import android.hardware.Camera
-import android.os.Bundle
 import android.util.Log
 import android.view.Surface
 import android.view.SurfaceHolder
-import com.blood.common.base.BasePermissionActivity
+import com.blood.common.base.RequestPermissionActivity
 import com.blood.common.util.AssetsUtil
 import com.blood.common.util.FileUtil
 import com.blood.opencv.databinding.ActivityMainBinding
 import java.io.File
 
-class MainActivity : BasePermissionActivity(), SurfaceHolder.Callback, Camera.PreviewCallback {
+class MainActivity : RequestPermissionActivity(), SurfaceHolder.Callback, Camera.PreviewCallback {
 
     companion object {
 
@@ -22,25 +21,27 @@ class MainActivity : BasePermissionActivity(), SurfaceHolder.Callback, Camera.Pr
         const val TAG = "MainActivity"
 
         // 人脸训练集，模型
-        const val FRONTALFACE = "lbpcascade_frontalface.xml"
+//        const val FRONTALFACE = "lbpcascade_frontalface.xml"
+        const val FRONTALFACE = "myself_cascade.xml"
     }
 
     private lateinit var binding: ActivityMainBinding
     private var cameraHelper: CameraHelper? = null
-    private var cameraId = 1
+    private var cameraId = Camera.CameraInfo.CAMERA_FACING_FRONT
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreateView() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
     }
 
     override fun onResume() {
+        Log.i(TAG, "onResume: ")
         super.onResume()
         cameraHelper?.startPreview()
     }
 
     override fun onPause() {
+        Log.i(TAG, "onPause: ")
         super.onPause()
         cameraHelper?.stopPreview()
     }
@@ -51,10 +52,14 @@ class MainActivity : BasePermissionActivity(), SurfaceHolder.Callback, Camera.Pr
     }
 
     override fun process() {
+        Log.i(TAG, "process: ")
         val model = File(filesDir, FRONTALFACE)
         AssetsUtil.copyAssets(this, FRONTALFACE, model)
 
-        binding.switchCamera.setOnClickListener { cameraHelper?.switchCamera() }
+        binding.switchCamera.setOnClickListener {
+            cameraHelper?.switchCamera()
+            cameraId = cameraHelper!!.cameraId
+        }
         binding.surfaceView.holder.addCallback(this)
         cameraHelper = CameraHelper(cameraId).apply { setPreviewCallback(this@MainActivity) }
 
@@ -66,6 +71,7 @@ class MainActivity : BasePermissionActivity(), SurfaceHolder.Callback, Camera.Pr
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
+        Log.i(TAG, "surfaceCreated: ")
         opencvSetSurface(holder.surface)
     }
 
@@ -73,6 +79,7 @@ class MainActivity : BasePermissionActivity(), SurfaceHolder.Callback, Camera.Pr
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
+        Log.i(TAG, "surfaceDestroyed: ")
     }
 
     override fun onPreviewFrame(data: ByteArray, camera: Camera) {

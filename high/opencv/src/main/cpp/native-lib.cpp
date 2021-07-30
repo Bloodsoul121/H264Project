@@ -125,9 +125,9 @@ Java_com_blood_opencv_MainActivity_opencvPostData(JNIEnv *env, jobject thiz, jby
         m = gray(face).clone(); // 复制给m
         resize(m, m, Size(24, 24)); // 缩小图像，生成训练样本
 
-//        sprintf(p, "%s/%d.jpg", outPath, index++);
-//        imwrite(p, m);
-//        LOGI("save %s", p);
+        sprintf(p, "%s/%d.jpg", outPath, index++);
+        imwrite(p, m);
+        LOGI("save %s", p);
 
         // 画一个框框
         // src : 原图（整图）
