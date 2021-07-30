@@ -13,9 +13,8 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/core/common" />
-            <option value="$PROJECT_DIR$/high" />
-            <option value="$PROJECT_DIR$/high/opencv" />
-            <option value="$PROJECT_DIR$/high/train" />
+            <option value="$PROJECT_DIR$/ffmpeg" />
+            <option value="$PROJECT_DIR$/ffmpeg/demo" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

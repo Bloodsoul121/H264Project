@@ -1,0 +1,13 @@
+class MainActivity : RequestPermissionActivity() {
+
+    private lateinit var binding: ActivityMainBinding
+
+    override fun onCreateView() {
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+    }
+
+    override fun process() {
+    }
+
+}
