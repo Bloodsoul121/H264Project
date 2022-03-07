@@ -1,2 +1,30 @@
 apply from: "${rootProject.rootDir}/moduleDebug.gradle"
 apply from: "${rootProject.rootDir}/config.gradle"
+
+android {
+
+    defaultConfig {
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++14"
+                abiFilters 'arm64-v8a'
+            }
+            ndk {
+                abiFilters 'arm64-v8a'
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path file('CMakeLists.txt')
+        }
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['src/main/cpp/lib']
+        }
+    }
+
+}
